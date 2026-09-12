@@ -48,7 +48,7 @@ const nodes = [
     type: "topic",
     x: 23,
     y: 50,
-    href: "Transformer/Pos_embed/position-embeddings-progress.html",
+    href: "Transformer/Pos_embed/position-embeddings.html",
     connections: ["transformer"]
   },
 
