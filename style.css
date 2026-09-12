@@ -1,0 +1,400 @@
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:#fff;
+}
+
+body{
+  color:#171821;
+  font-family:Arial,Helvetica,sans-serif;
+  overflow-x:hidden;
+}
+
+.hero{
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+  background:#fff;
+  padding:60px 0 55px;
+}
+
+/* =========================
+   LIVING WAVEFORM
+========================= */
+
+.wave-layer{
+  position:absolute;
+  z-index:0;
+  left:-9%;
+  top:4%;
+  width:118%;
+  height:67vh;
+  min-height:0;
+  max-height:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:none;
+  transform-origin:center center;
+  will-change:transform,opacity;
+}
+
+.wave-layer img{
+  display:block;
+
+  width:100%;
+  height:auto;
+
+  max-width:none;
+
+  transform:scaleY(0.70);
+  transform-origin:center center;
+
+  will-change:transform,filter;
+}
+
+
+.wave-soften{
+  position:absolute;
+  z-index:1;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,255,255,.02) 0%,
+      rgba(255,255,255,.00) 48%,
+      rgba(255,255,255,.08) 100%
+    );
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.hero-content{
+  width:min(1180px,90vw);
+  min-height:calc(100vh - 115px);
+  margin:0 auto;
+  position:relative;
+  z-index:5;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.identity{
+  display:flex;
+  align-items:center;
+  gap:58px;
+}
+
+.profile-frame{
+  width:300px;
+  height:300px;
+  flex:0 0 300px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#fff;
+  border:2px solid rgba(154,57,255,.72);
+  box-shadow:
+    0 12px 38px rgba(55,45,110,.13),
+    0 0 22px rgba(167,77,255,.20);
+}
+
+.profile-frame img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 20%;
+  border-radius:50%;
+}
+
+.identity-copy{
+  max-width:700px;
+}
+
+.brand{
+  margin-bottom:18px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.38em;
+  color:#171821;
+}
+
+.brand span{
+  background:linear-gradient(90deg,#a735ff,#278fff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+h1{
+  margin:0;
+  font-size:clamp(42px,5vw,68px);
+  line-height:.98;
+  font-weight:500;
+  letter-spacing:-.045em;
+  color:#14151b;
+}
+
+.description{
+  margin:25px 0 0;
+  font-size:clamp(20px,2vw,27px);
+  line-height:1.4;
+  color:#25262d;
+}
+
+.description span {
+    background: linear-gradient(
+        90deg,
+        #d32dff,
+        #6d65ff,
+        #19cfff
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+.gradient-line{
+  width:160px;
+  height:3px;
+  margin-top:26px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#d32dff,#6d65ff,#19cfff);
+}
+
+.tags{
+  margin:20px 0 0;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.075em;
+  color:#62646d;
+}
+
+.tags b{
+  margin:0 10px;
+  color:#9a9ba3;
+}
+
+/* =========================
+   PERSONAL
+========================= */
+
+.personal{
+  margin-top:100px;
+  text-align:center;
+}
+
+.personal-line{
+  font-size:clamp(28px,3.2vw,43px);
+  line-height:1.2;
+  letter-spacing:-.025em;
+  color:#181920;
+}
+
+.personal-line span{
+  color:#f04491;
+  font-size:1.15em;
+}
+
+.roles{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:22px;
+  margin-top:32px;
+  font-size:13px;
+  letter-spacing:.30em;
+  color:#70727c;
+}
+
+.roles i{
+  font-style:normal;
+  color:#9a9ba3;
+}
+
+
+
+/* =========================
+   HERO ENTRY BUTTONS
+========================= */
+
+.hero-entry-buttons{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  margin-top:30px;
+}
+
+.about-button,
+.discover-button,.mechanics-button{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+
+  padding:11px 18px;
+
+  border:1px solid rgba(109,101,255,.20);
+  border-radius:999px;
+
+  background:rgba(255,255,255,.52);
+
+  color:#686a75;
+  text-decoration:none;
+
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.18em;
+
+  transition:
+    color .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease,
+    transform .25s ease;
+}
+
+.about-button span,
+.discover-button span,.mechanics-button span{
+  font-size:13px;
+
+  background:linear-gradient(
+    90deg,
+    #d32dff,
+    #6d65ff,
+    #19cfff
+  );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.about-button:hover,
+.discover-button:hover,.mechanics-button:hover{
+  color:#555762;
+  border-color:rgba(109,101,255,.38);
+  box-shadow:0 0 22px rgba(109,101,255,.10);
+  transform:translateY(-1px);
+}
+
+.discover-button{
+  border-color:rgba(109,101,255,.30);
+}
+.mechanics-button{
+  border-color:rgba(109,101,255,.30);
+}
+
+@media(max-width:800px){
+  .hero-entry-buttons{
+    flex-wrap:wrap;
+    gap:10px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:800px){
+  .about-section{
+    width:88vw;
+    padding:90px 0 110px;
+  }
+
+  .about-section h2{
+    margin-bottom:32px;
+  }
+
+  .about-section p{
+    font-size:16px;
+    line-height:1.75;
+  }
+
+  .hero{padding:40px 0 45px}
+
+  .hero-content{
+    width:90vw;
+    min-height:auto;
+  }
+
+  .wave-layer{
+    left:-38%;
+    width:176%;
+    height:55vh;
+    min-height:300px;
+    opacity:.7;
+  }
+
+  .identity{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:30px;
+  }
+
+  .profile-frame{
+    width:210px;
+    height:210px;
+    flex-basis:210px;
+  }
+
+  .identity-copy{max-width:100%}
+
+  h1{font-size:38px}
+
+  .gradient-line{
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .tags{line-height:2}
+
+  .personal{margin-top:75px}
+
+  .roles{
+    flex-wrap:wrap;
+    gap:12px;
+    letter-spacing:.20em;
+  }
+
+  .network{
+    opacity:.30;
+    transform:scale(.72);
+  }
+
+  .network-left{left:-55px}
+  .network-right{right:-55px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .wave-layer,
+  .network{
+    animation:none!important;
+  }
+}

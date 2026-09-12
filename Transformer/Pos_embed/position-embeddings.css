@@ -1,0 +1,1463 @@
+/* =========================================================
+   POSITION EMBEDDINGS — ARTICLE
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background: #FFFFFF;
+  color: #202124;
+
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.article-page {
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding: 32px 6vw 100px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.article-nav {
+  margin-bottom: 100px;
+}
+
+.article-nav a,
+.article-footer-nav a {
+  color: #202124;
+
+  text-decoration: none;
+
+  font-size: 0.76rem;
+
+  letter-spacing: 0.12em;
+
+  transition: opacity 0.25s ease;
+}
+
+.article-nav a:hover,
+.article-footer-nav a:hover {
+  opacity: 0.5;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.article-header {
+  max-width: 900px;
+
+  margin-bottom: 90px;
+}
+
+.section-label {
+  margin-bottom: 22px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.2em;
+
+  opacity: 0.45;
+}
+
+.article-header h1 {
+  margin: 0;
+
+  font-size: clamp(3.2rem, 7vw, 7rem);
+
+  line-height: 0.94;
+
+  font-weight: 400;
+
+  letter-spacing: -0.06em;
+}
+
+.article-header h1 span {
+  opacity: 0.42;
+}
+
+.article-intro {
+  max-width: 680px;
+
+  margin-top: 35px;
+
+  font-size: 1.05rem;
+
+  line-height: 1.75;
+
+  opacity: 0.62;
+}
+
+
+/* =========================================================
+   ARTICLE SECTIONS
+   ========================================================= */
+
+.article-section {
+  max-width: 760px;
+
+  margin: 0 auto 110px;
+}
+
+.article-section h2 {
+  margin: 0 0 30px;
+
+  font-size: clamp(2rem, 4vw, 3.5rem);
+
+  line-height: 1.05;
+
+  font-weight: 400;
+
+  letter-spacing: -0.045em;
+}
+
+.article-section h3 {
+  font-weight: 400;
+}
+
+.article-section p {
+  max-width: 700px;
+
+  margin: 0 0 25px;
+
+  font-size: 1.03rem;
+
+  line-height: 1.85;
+
+  opacity: 0.78;
+}
+
+
+/* =========================================================
+   QUESTION NUMBERS
+   ========================================================= */
+
+.question-number {
+  margin-bottom: 20px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.2em;
+
+  opacity: 0.4;
+}
+
+
+/* =========================================================
+   QUESTION CALLOUT
+   ========================================================= */
+
+.question-callout {
+  margin-top: 45px !important;
+
+  padding-left: 24px;
+
+  border-left: 2px solid rgba(233, 120, 91, 0.55);
+
+  font-size: 1.08rem !important;
+
+  line-height: 1.7 !important;
+
+  opacity: 0.9 !important;
+}
+
+
+/* =========================================================
+   EQUATIONS
+   ========================================================= */
+
+.equation {
+  margin: 45px 0;
+
+  padding: 30px 20px;
+
+  text-align: center;
+
+  overflow-x: auto;
+
+  font-size: 1.2rem;
+}
+
+.small-equation {
+  margin: 25px 0;
+
+  font-size: 1rem;
+}
+
+
+/* =========================================================
+   FIGURES
+   ========================================================= */
+
+.article-figure {
+  width: 100%;
+
+  margin: 80px auto 110px;
+}
+
+.figure-placeholder {
+  min-height: 360px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: None;
+  text-align: center;
+
+  /* Remove this */
+  /* opacity: 0.45; */
+}
+
+.figure-placeholder.large {
+  min-height: 540px;
+}
+
+.figure-placeholder img {
+  display: block;
+  width: 100%;
+  max-width: 1000px;
+  height: auto;
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   ABSOLUTE / RELATIVE PHILOSOPHIES
+   ========================================================= */
+
+.philosophy-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 25px;
+
+  margin: 50px 0;
+}
+
+.philosophy-card {
+  padding: 35px;
+
+  border: 1px solid rgba(32, 33, 36, 0.12);
+
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.philosophy-label {
+  margin-bottom: 20px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.18em;
+
+  opacity: 0.45;
+}
+
+.philosophy-card h3 {
+  margin: 0 0 18px;
+
+  font-size: 1.5rem;
+
+  letter-spacing: -0.025em;
+}
+
+.philosophy-card p {
+  font-size: 0.92rem;
+}
+
+
+/* =========================================================
+   DISTINCTIONS
+   ========================================================= */
+
+.distinction-list {
+  margin: 45px 0;
+
+  border-top: 1px solid rgba(32, 33, 36, 0.10);
+}
+
+.distinction-list div {
+  display: grid;
+
+  grid-template-columns: 200px 1fr;
+
+  gap: 25px;
+
+  padding: 20px 0;
+
+  border-bottom: 1px solid rgba(32, 33, 36, 0.10);
+}
+
+.distinction-list strong {
+  font-size: 0.76rem;
+
+  letter-spacing: 0.08em;
+}
+
+.distinction-list span {
+  font-size: 0.9rem;
+
+  line-height: 1.6;
+
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   POSITION EXAMPLE
+   ========================================================= */
+
+.position-example {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.position-row {
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  gap: 12px;
+}
+
+.position-row.shifted {
+  padding-left: 52px;
+}
+
+/* =========================================================
+   TRANSFORMER-XL TERM BREAKDOWN
+   ========================================================= */
+
+.xl-term {
+  display: grid;
+
+  grid-template-columns: 180px 1fr;
+
+  gap: 40px;
+
+  margin: 55px 0;
+
+  padding: 35px 0;
+
+  border-top: 1px solid rgba(32, 33, 36, 0.10);
+}
+
+.xl-term-equation {
+  padding-top: 8px;
+
+  font-size: 1.05rem;
+}
+
+.xl-term-content h3 {
+  margin: 0 0 18px;
+
+  font-size: 1.25rem;
+
+  font-weight: 400;
+
+  letter-spacing: -0.02em;
+}
+
+.xl-term-content p {
+  margin-bottom: 18px;
+}
+
+.term-question {
+  margin: 25px 0;
+
+  padding: 18px 20px;
+
+  border-left: 2px solid rgba(233, 120, 91, 0.55);
+
+  font-size: 0.95rem;
+
+  line-height: 1.65;
+
+  opacity: 0.82;
+}
+
+.term-takeaway {
+  display: inline-block;
+
+  margin-top: 10px;
+
+  padding: 8px 12px;
+
+  border: 1px solid rgba(32, 33, 36, 0.12);
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.1em;
+
+  opacity: 0.55;
+}
+
+
+/* =========================================================
+   TRANSFORMER-XL SUMMARY
+   ========================================================= */
+
+.xl-summary {
+  margin: 70px 0;
+
+  padding: 35px 0;
+
+  border-top: 1px solid rgba(32, 33, 36, 0.14);
+
+  border-bottom: 1px solid rgba(32, 33, 36, 0.14);
+}
+
+.xl-summary h3 {
+  margin: 0 0 30px;
+
+  font-size: 1.4rem;
+
+  font-weight: 400;
+
+  letter-spacing: -0.025em;
+}
+
+.xl-summary-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 18px;
+}
+
+.xl-summary-grid div {
+  padding: 22px;
+
+  border: 1px solid rgba(32, 33, 36, 0.10);
+
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.xl-summary-grid strong {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 0.95rem;
+}
+
+.xl-summary-grid span {
+  font-size: 0.88rem;
+
+  line-height: 1.6;
+
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   T5 NOTE
+   ========================================================= */
+
+.highlight-note {
+  display: grid;
+
+  grid-template-columns: 180px 1fr;
+
+  gap: 25px;
+
+  margin: 45px 0;
+
+  padding: 25px;
+
+  border-left: 2px solid rgba(79, 70, 229, 0.55);
+
+  background: rgba(221, 231, 247, 0.55);
+}
+
+.highlight-note strong {
+  font-size: 0.78rem;
+
+  letter-spacing: 0.08em;
+}
+
+.highlight-note span {
+  font-size: 0.92rem;
+
+  line-height: 1.65;
+
+  opacity: 0.72;
+}
+
+
+/* =========================================================
+   ROPE
+   ========================================================= */
+
+.rope-section {
+  margin-top: 140px;
+}
+
+.rope-placeholder {
+  min-height: 380px;
+
+  margin: 55px 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px dashed rgba(79, 70, 229, 0.45);
+
+  text-align: center;
+}
+
+.rope-placeholder span {
+  font-size: 0.68rem;
+
+  letter-spacing: 0.2em;
+
+  opacity: 0.5;
+}
+
+.rope-placeholder p {
+  margin-top: 12px;
+
+  font-size: 0.85rem;
+
+  opacity: 0.55;
+}
+
+
+/* =========================================================
+   JOURNEY
+   ========================================================= */
+
+.journey-section {
+  max-width: 760px;
+  margin: 150px auto;
+  padding-top: 45px;
+  border-top: 1px solid rgba(32, 33, 36, 0.12);
+}
+
+.journey-section h2 {
+  margin: 0 0 50px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.045em;
+}
+
+.journey-map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.journey-map div {
+  width: min(100%, 480px);
+  padding: 18px 28px;
+
+  border: 1px solid rgba(32, 33, 36, 0.16);
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.5);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+.journey-map strong {
+  display: block;
+  margin-bottom: 7px;
+
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.journey-map span {
+  font-size: 0.82rem;
+  opacity: 0.6;
+}
+
+
+/* Larger, more visible journey arrows */
+.journey-map > span {
+  display: block;
+
+  font-size: 1.6rem;
+  line-height: 1;
+
+  opacity: 0.45;
+
+  margin: 2px 0;
+}
+
+
+/* The RoPE destination */
+.journey-current {
+  position: relative;
+
+  border: 2px solid rgba(233, 120, 91, 0.75) !important;
+
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.025);
+}
+
+.journey-current strong {
+  color: rgb(190, 82, 57);
+}
+
+.journey-current span {
+  opacity: 0.75;
+}
+
+.journey-arrow {
+  display: block;
+  font-size: 1.8rem !important;
+  font-weight: 300;
+  opacity: 0.45 !important;
+  line-height: 1;
+}
+
+/* =========================================================
+   CLOSING
+   ========================================================= */
+
+.closing-section {
+  margin-top: 150px;
+}
+
+.final-question {
+  margin-top: 55px !important;
+
+  font-size: 1.25rem !important;
+
+  line-height: 1.7 !important;
+
+  opacity: 0.95 !important;
+}
+
+.final-link {
+  margin-top: 45px !important;
+}
+
+.final-link a {
+  color: #202124;
+
+  text-decoration: none;
+
+  border-bottom: 1px solid rgba(29, 29, 27, 0.35);
+
+  padding-bottom: 4px;
+
+  transition: opacity 0.25s ease;
+}
+
+.final-link a:hover {
+  opacity: 0.5;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.article-footer-nav {
+  max-width: 760px;
+
+  margin: 120px auto 0;
+
+  padding-top: 30px;
+
+  border-top: 1px solid rgba(32, 33, 36, 0.12);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+  .article-page {
+    padding: 24px 6vw 70px;
+  }
+
+  .article-nav {
+    margin-bottom: 65px;
+  }
+
+  .article-header {
+    margin-bottom: 70px;
+  }
+
+  .article-section {
+    margin-bottom: 85px;
+  }
+
+  .article-figure {
+    margin: 60px auto 80px;
+  }
+
+  .figure-placeholder.large {
+    min-height: 450px;
+  }
+
+  .philosophy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .xl-term {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .xl-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .distinction-list div {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+  }
+
+  .highlight-note {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .article-header h1 {
+    font-size: 3.25rem;
+  }
+
+  .article-intro {
+    font-size: 0.95rem;
+  }
+
+  .article-section h2 {
+    font-size: 2.15rem;
+  }
+
+  .article-section p {
+    font-size: 0.98rem;
+  }
+
+  .equation {
+    margin: 30px 0;
+
+    font-size: 0.95rem;
+  }
+
+  .figure-placeholder.large {
+    min-height: 350px;
+  }
+
+  .xl-term {
+    margin: 40px 0;
+  }
+
+  .position-example {
+    font-size: 0.95rem;
+  }
+
+  .closing-section {
+    margin-top: 90px;
+  }
+
+}
+
+
+/* =========================================================
+   FINAL COLOUR TREATMENT — visual layer only
+   Content, typography, spacing and layout are unchanged.
+   ========================================================= */
+
+/* Main title: keep the first part black, gradient the question */
+.article-header h1 {
+  color: #1D1D1B;
+}
+
+.article-header h1 span {
+  opacity: 1;
+  background: linear-gradient(90deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Question boxes: soft gradient background + thick gradient bar */
+.question-callout,
+.term-question {
+  position: relative;
+  border-left: none;
+  background: linear-gradient(90deg, rgba(233, 232, 245, 0.72), rgba(242, 244, 252, 0.88));
+}
+
+.question-callout::before,
+.term-question::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  border-radius: 3px 0 0 3px;
+}
+
+.section-label { color: #4F46E5; }
+.highlight-note { border-left-color: #4F46E5; background: rgba(221, 231, 247, 0.55); }
+.rope-placeholder { border-color: rgba(79, 70, 229, 0.45); }
+.journey-current { border-color: rgba(79, 70, 229, 0.45) !important; }
+.final-link a:hover { color: #E9785B; }
+.article-nav a:hover, .article-footer-nav a:hover { color: #4F46E5; }
+
+.section-label { color: #4F46E5; }
+.question-callout, .term-question { border-left-color: #E9785B; }
+.highlight-note { border-left-color: #4F46E5; background: rgba(221, 231, 247, 0.55); }
+.rope-placeholder { border-color: rgba(79, 70, 229, 0.45); }
+.journey-current { border-color: rgba(79, 70, 229, 0.45) !important; }
+.final-link a:hover { color: #E9785B; }
+.article-nav a:hover, .article-footer-nav a:hover { color: #4F46E5; }
+
+
+/* =========================================================
+   ACTIVATION-STYLE EDITORIAL LAYER
+   White canvas · left progression map · tighter rhythm
+   ========================================================= */
+
+body {
+  background: #FFFFFF;
+  color: #202124;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  line-height: 1.7;
+}
+
+/* LEFT PROGRESSION MAP */
+.lora-map {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 310px;
+  height: 100vh;
+  padding: 46px 30px 45px 42px;
+  background: #FFFFFF;
+  border-right: 1px solid rgba(32, 33, 36, 0.13);
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.map-kicker,
+.map-title,
+.map-item strong,
+.eyebrow,
+.section-label,
+.question-number,
+.caption,
+.term-takeaway {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.map-kicker {
+  margin: 0 0 7px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #777;
+}
+
+.map-title {
+  margin: 0 0 28px;
+  font-size: 1.18rem;
+  font-weight: 700;
+}
+
+.timeline {
+  position: relative;
+  margin-left: 4px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(32, 33, 36, 0.15);
+}
+
+.map-item {
+  position: relative;
+  display: block;
+  padding: 0 0 22px 27px;
+  text-decoration: none;
+  color: #777;
+}
+
+.map-dot {
+  position: absolute;
+  left: 1px;
+  top: 7px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1px solid #aaa;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.map-item strong {
+  display: block;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #666;
+}
+
+.map-item span {
+  display: block;
+  margin-top: 3px;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #999;
+}
+
+.map-item:hover strong,
+.map-item.active strong {
+  color: #202124;
+}
+
+.map-item.active .map-dot,
+.map-item.done .map-dot {
+  background: linear-gradient(135deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  border-color: transparent;
+}
+
+.map-item.active .map-dot {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+/* MAIN ARTICLE */
+.article-page {
+  margin-left: 310px;
+  max-width: 1100px;
+  padding: 0 70px 110px;
+}
+
+.article-nav {
+  margin-bottom: 0;
+  padding-top: 32px;
+}
+
+.article-nav a,
+.article-footer-nav a {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.article-header {
+  max-width: 800px;
+  padding: 90px 0 75px;
+  margin-bottom: 0;
+}
+
+.section-label {
+  margin-bottom: 18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #4F46E5;
+  opacity: 1;
+}
+
+.article-header h1 {
+  color: #1D1D1B;
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  line-height: 1.02;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.article-header h1 span {
+  opacity: 1;
+  background: linear-gradient(90deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.article-intro {
+  max-width: 700px;
+  margin-top: 25px;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 1.16rem;
+  line-height: 1.65;
+  color: #555;
+  opacity: 1;
+}
+
+.article-section {
+  max-width: 760px;
+  margin: 0 auto 105px;
+  scroll-margin-top: 35px;
+}
+
+.article-section h2 {
+  margin: 0 0 18px;
+  font-size: 2rem;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+}
+
+.article-section h3 {
+  margin: 38px 0 12px;
+  font-size: 1.22rem;
+  line-height: 1.3;
+}
+
+.article-section p {
+  max-width: 700px;
+  margin: 0 0 18px;
+  font-size: 1.03rem;
+  line-height: 1.7;
+  opacity: 0.78;
+}
+
+.question-number {
+  margin-bottom: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #4F46E5;
+  opacity: 1;
+}
+
+/* TIGHTER MATH RHYTHM */
+.equation {
+  margin: 20px 0;
+  padding: 7px 10px;
+  font-size: 1.06rem;
+}
+
+.small-equation {
+  margin: 15px 0;
+  font-size: 0.98rem;
+}
+
+.equation mjx-container[display="true"] {
+  margin: 0 !important;
+}
+
+/* QUESTION CALLOUTS */
+.question-callout,
+.term-question {
+  position: relative;
+  border-left: none;
+  background: linear-gradient(90deg, rgba(233, 232, 245, 0.72), rgba(242, 244, 252, 0.88));
+}
+
+.question-callout {
+  margin: 30px 0 !important;
+  padding: 21px 24px 21px 30px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.08rem !important;
+  line-height: 1.55 !important;
+  opacity: 0.9 !important;
+}
+
+.question-callout::before,
+.term-question::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  border-radius: 3px 0 0 3px;
+}
+
+.term-question {
+  margin: 20px 0;
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* COMPACT FIGURES */
+.article-figure {
+  margin: 36px auto 42px;
+}
+
+.figure-placeholder {
+  min-height: 300px;
+}
+
+.figure-placeholder.large {
+  min-height: 420px;
+}
+
+/* SPECIALIZED POSITION EMBEDDINGS BLOCKS */
+.philosophy-grid {
+  gap: 18px;
+  margin: 32px 0;
+}
+
+.philosophy-card {
+  padding: 24px;
+}
+
+.distinction-list {
+  margin: 32px 0;
+}
+
+.distinction-list div {
+  padding: 15px 0;
+}
+
+.xl-term {
+  gap: 30px;
+  margin: 36px 0;
+  padding: 24px 0;
+}
+
+.xl-summary {
+  margin: 45px 0;
+  padding: 25px 0;
+}
+
+.xl-summary-grid div {
+  padding: 18px;
+}
+
+.highlight-note {
+  margin: 32px 0;
+  padding: 21px 24px;
+}
+
+.rope-section {
+  margin-top: 90px;
+}
+
+.rope-placeholder {
+  min-height: 300px;
+  margin: 32px 0;
+}
+
+.journey-section {
+  margin: 100px auto;
+  padding-top: 32px;
+}
+
+.journey-section h2 {
+  margin-bottom: 32px;
+}
+
+.journey-map {
+  gap: 14px;
+}
+
+.closing-section {
+  margin-top: 100px;
+}
+
+.article-footer-nav {
+  margin-top: 80px;
+  padding-top: 24px;
+}
+
+/* MOBILE */
+@media (max-width: 800px) {
+  .lora-map {
+    position: sticky;
+    width: 100%;
+    height: auto;
+    padding: 14px 16px 10px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(32, 33, 36, 0.13);
+  }
+
+  .map-title,
+  .map-kicker {
+    display: none;
+  }
+
+  .timeline {
+    display: flex;
+    gap: 9px;
+    margin: 0;
+    padding-bottom: 3px;
+    overflow-x: auto;
+  }
+
+  .timeline::before {
+    display: none;
+  }
+
+  .map-item {
+    min-width: 145px;
+    padding: 8px 10px 8px 26px;
+    border: 1px solid rgba(32, 33, 36, 0.12);
+    border-radius: 12px;
+  }
+
+  .map-dot {
+    left: 9px;
+    top: 12px;
+  }
+
+  .article-page {
+    margin-left: 0;
+    padding: 0 22px 70px;
+  }
+
+  .article-header {
+    padding: 58px 0 55px;
+  }
+
+  .article-section {
+    margin-bottom: 78px;
+  }
+
+  .article-figure {
+    margin: 30px auto 45px;
+  }
+
+  .figure-placeholder.large {
+    min-height: 350px;
+  }
+
+  .xl-term {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .xl-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .distinction-list div,
+  .highlight-note {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .article-header h1 {
+    font-size: 3rem;
+  }
+
+  .article-intro {
+    font-size: 0.98rem;
+  }
+
+  .article-section h2 {
+    font-size: 2.15rem;
+  }
+
+  .article-section p {
+    font-size: 0.98rem;
+  }
+
+  .equation {
+    margin: 18px 0;
+    font-size: 0.95rem;
+  }
+
+  .figure-placeholder.large {
+    min-height: 320px;
+  }
+}
+
+
+/* =========================================================
+   LIVE NUMBERED PROGRESSION MAP
+   ========================================================= */
+
+.timeline {
+  --progress-height: 0px;
+}
+
+.timeline::before {
+  left: 43px;
+  top: 5px;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(32, 33, 36, 0.14);
+}
+
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 43px;
+  top: 5px;
+  width: 2px;
+  height: var(--progress-height);
+  background: linear-gradient(180deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: height 0.2s ease;
+}
+
+.map-item {
+  min-height: 43px;
+  padding: 0 0 22px 62px;
+  color: #999;
+}
+
+.map-number {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 29px;
+  margin: 0 !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 0.68rem !important;
+  line-height: 1.2 !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #B1B1B1 !important;
+}
+
+.map-dot {
+  left: 38px;
+  top: 4px;
+  width: 11px;
+  height: 11px;
+  z-index: 2;
+}
+
+.map-copy {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.map-copy strong {
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #777;
+}
+
+.map-copy em {
+  display: block;
+  margin-top: 3px;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  font-style: normal;
+  color: #A4A4A4;
+}
+
+.map-item.is-upcoming .map-dot {
+  background: #FFFFFF;
+  border-color: #B7B7B7;
+}
+
+.map-item.is-complete .map-number,
+.map-item.is-current .map-number {
+  color: #4F46E5 !important;
+}
+
+.map-item.is-complete .map-dot,
+.map-item.is-current .map-dot {
+  background: linear-gradient(135deg, #D946EF 0%, #6366F1 50%, #06B6D4 100%);
+  border-color: transparent;
+}
+
+.map-item.is-current .map-dot {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10);
+}
+
+.map-item.is-current .map-copy strong {
+  color: #202124;
+}
+
+.map-item.is-complete .map-copy strong {
+  color: #666;
+}
+
+.map-item.is-upcoming .map-copy strong {
+  color: #8A8A8A;
+}
+
+.map-item:hover .map-copy strong {
+  color: #202124;
+}
+
+.sinusoidal-equations {
+  margin: 30px 0 34px;
+}
+
+.sinusoidal-equations mjx-container + mjx-container {
+  margin-top: 28px !important;
+}
+
+.sinusoidal-equations + p {
+  margin-top: 34px;
+}
+
+@media (max-width: 900px) {
+  .timeline::before,
+  .timeline::after {
+    display: none;
+  }
+
+  .map-item {
+    min-width: 185px;
+    min-height: auto;
+    padding: 9px 12px 9px 34px;
+  }
+
+  .map-number {
+    left: 8px;
+    top: 10px;
+  }
+
+  .map-dot {
+    left: 9px;
+    top: 12px;
+  }
+}

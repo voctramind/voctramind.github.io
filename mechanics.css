@@ -1,0 +1,342 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: #171821;
+}
+
+/* ================================
+   PAGE
+   ================================ */
+
+.mechanics-page {
+  min-height: 100vh;
+  padding: 32px 6vw 80px;
+}
+
+
+/* ================================
+   NAVIGATION
+   ================================ */
+
+.mechanics-nav {
+  margin-bottom: 70px;
+}
+
+.mechanics-nav a {
+  text-decoration: none;
+  color: #1d1d1b;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  transition: opacity 0.25s ease;
+}
+
+.mechanics-nav a:hover {
+  opacity: 0.55;
+}
+
+
+/* ================================
+   HEADER
+   ================================ */
+
+.mechanics-header{
+  max-width:760px;
+  margin:105px auto 55px;
+  text-align:center;
+}
+
+.mechanics-header .section-label{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.3em;
+  color:#9a8da8;
+  margin-bottom:22px;
+}
+
+.mechanics-header h1{
+  margin:0;
+  font-size:clamp(46px,6vw,76px);
+  line-height:1.02;
+  font-weight:500;
+  letter-spacing:-.055em;
+}
+
+.mechanics-header h1 span{
+  background:linear-gradient(
+    90deg,
+    #d32dff,
+    #6d65ff,
+    #19cfff
+  );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.mechanics-header p{
+  margin:28px auto 0;
+  max-width:590px;
+
+  font-size:17px;
+  line-height:1.7;
+
+  color:#686a74;
+}
+
+/* ================================
+   KNOWLEDGE MAP
+   ================================ */
+
+.mechanics-web {
+  position: relative;
+  width: 100%;
+  min-height: 620px;
+  margin-top: 30px;
+  overflow: hidden;
+}
+
+
+/* SVG CONNECTION LINES */
+
+#mechanicsLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+
+/* NODE CONTAINER */
+
+#mechanicsNodes {
+  position: absolute;
+  inset: 0;
+}
+
+.mechanics-line {
+  stroke: url(#mechanicsGradient);
+  stroke-width: 1.2;
+  opacity: .22;
+  transition: opacity .35s, stroke-width .35s;
+}
+
+.mechanics-line.active {
+  opacity: .72;
+  stroke-width: 1.8;
+}
+
+
+/* ================================
+   NODES
+   ================================ */
+
+.mechanics-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+
+  display: block;
+  width: max-content;
+
+  padding: 11px 17px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: #FAFAFA;
+  border: 1px solid rgba(29, 29, 27, 0.20);
+  border-radius: 8px;
+
+  color: #1d1d1b;
+
+  font-family: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+.mechanics-node:hover {
+  transform: translate(-50%, -50%) translateY(-3px);
+  border-color: rgba(29, 29, 27, 0.65);
+  background: #ffffff;
+}
+
+.mechanics-node.active {
+  border-color: #1d1d1b;
+  background: #ffffff;
+}
+
+
+/* ================================
+   CATEGORY NODES
+   ================================ */
+
+.mechanics-node.category {
+  border: none;
+  background: transparent;
+  padding: 0;
+
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+
+  opacity: 0.45;
+}
+
+.mechanics-node.category:hover {
+  transform: translate(-50%, -50%);
+  background: transparent;
+}
+
+
+/* ================================
+   CONNECTION LINES
+   ================================ */
+
+
+
+/* ================================
+   TOPIC PANEL
+   ================================ */
+
+.mechanics-topic-panel {
+  max-width: 720px;
+  margin: 50px auto 0;
+  padding: 36px 0 0;
+
+  border-top: 1px solid rgba(29, 29, 27, 0.18);
+}
+
+.mechanics-topic-kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  opacity: 0.45;
+  margin-bottom: 14px;
+}
+
+.mechanics-topic-panel h2 {
+  margin: 0;
+
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.mechanics-topic-panel p {
+  max-width: 620px;
+  margin-top: 16px;
+
+  font-size: 1rem;
+  line-height: 1.75;
+  opacity: 0.62;
+}
+
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 800px) {
+
+  .mechanics-page {
+    padding: 24px 6vw 60px;
+  }
+
+  .mechanics-nav {
+    margin-bottom: 50px;
+  }
+
+  .mechanics-header {
+    margin-bottom: 40px;
+  }
+
+  .mechanics-web {
+    min-height: 720px;
+  }
+
+  .mechanics-node {
+    font-size: 0.68rem;
+    padding: 9px 12px;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .mechanics-header h1 {
+    font-size: 3.2rem;
+  }
+
+  .mechanics-web {
+    min-height: 820px;
+  }
+
+  .mechanics-topic-panel {
+    margin-top: 30px;
+  }
+}
+
+.research-star {
+  display: inline-block;
+
+  color:  #5146D8;
+  font-size: 1.0em;
+
+  text-shadow:
+    0 0 7px rgba(212, 167, 44, 0.45);
+
+  transform-origin: center;
+
+  animation: researchStar 2.2s ease-in-out infinite;
+}
+
+@keyframes researchStar {
+
+  0% {
+    transform: rotate(-25deg) scale(0.85);
+    opacity: 0.65;
+  }
+
+  50% {
+    transform: rotate(25deg) scale(1.35);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-25deg) scale(0.85);
+    opacity: 0.65;
+  }
+}
+
+.research-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 5px;
+
+  font-size: 1.0rem;
+  letter-spacing: 0.12em;
+
+  opacity: 1.0;
+}

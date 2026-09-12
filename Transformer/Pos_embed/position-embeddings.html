@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <title>Position Embeddings — VoctraMind</title>
+
+  <link rel="stylesheet" href="position-embeddings.css">
+</head>
+
+<body>
+
+
+    <aside class="lora-map" aria-label="Position Embeddings progression">
+      <div class="map-kicker">MODEL MACHINERY</div>
+      <div class="map-title">Position Embeddings</div>
+
+      <nav class="timeline">
+        <a class="map-item" href="#attention" data-target="attention">
+          <span class="map-number">01</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Attention has no position</strong>
+            <em>Why order is missing</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#philosophies" data-target="philosophies">
+          <span class="map-number">02</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Two philosophies</strong>
+            <em>Absolute vs relative</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#learned-absolute" data-target="learned-absolute">
+          <span class="map-number">03</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Learned absolute</strong>
+            <em>One vector per position</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#sinusoidal" data-target="sinusoidal">
+          <span class="map-number">04</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Sinusoidal</strong>
+            <em>Position without learning</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#rotation" data-target="rotation">
+          <span class="map-number">05</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Rotation property</strong>
+            <em>Moving by an offset</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#generalisation" data-target="generalisation">
+          <span class="map-number">06</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Generalisation</strong>
+            <em>Unseen positions</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#context-length" data-target="context-length">
+          <span class="map-number">07</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Context length</strong>
+            <em>Position ≠ context</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#translation" data-target="translation">
+          <span class="map-number">08</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Relative position</strong>
+            <em>Translation invariance</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#shaw" data-target="shaw">
+          <span class="map-number">09</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Shaw</strong>
+            <em>Position inside attention</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#transformer-xl" data-target="transformer-xl">
+          <span class="map-number">10</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>Transformer-XL</strong>
+            <em>Content + relative position</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#t5" data-target="t5">
+          <span class="map-number">11</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>T5</strong>
+            <em>Bucketed relative bias</em>
+          </span>
+        </a>
+
+        <a class="map-item" href="#rope" data-target="rope">
+          <span class="map-number">12</span>
+          <i class="map-dot"></i>
+          <span class="map-copy">
+            <strong>RoPE</strong>
+            <em>From exponentials to rotation</em>
+          </span>
+        </a>
+      </nav>
+    </aside>
+
+  <main class="article-page">
+
+    <nav class="article-nav">
+      <a href="../../mechanics.html">← MODEL MACHINERY</a>
+    </nav>
+
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <header class="article-header">
+
+      <div class="section-label">
+        MODEL MACHINERY / TRANSFORMERS
+      </div>
+
+      <h1>
+        How does a Transformer<br>
+        <span>know where a token is?</span>
+      </h1>
+
+      <p class="article-intro">
+        From absolute positions to relative ones — and finally,
+        a RoPE to hold onto.
+      </p>
+
+    </header>
+
+
+    <!-- =====================================================
+         01 — ATTENTION HAS NO POSITION
+         ===================================================== -->
+
+    <section class="article-section" id="attention">
+
+      <div class="question-number">01</div>
+
+      <h2>
+        Attention doesn't know where you are.
+      </h2>
+
+      <p>
+        Start with self-attention itself.
+      </p>
+
+      <div class="equation">
+
+        \[
+        \operatorname{Attention}(Q,K,V)
+        =
+        \operatorname{softmax}
+        \left(
+        \frac{QK^T}{\sqrt{d_k}}
+        \right)V
+        \]
+
+      </div>
+
+<p>
+  When the order of the input tokens is changed, the pairwise attention
+  scores remain the same. The model still measures the same relationships
+  between the tokens, regardless of where they appear in the sequence.
+</p>
+
+      <p class="question-callout">
+        So how do we break this invariance and tell the model
+        where each token occurs?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FIGURE 01
+         ===================================================== -->
+
+<section class="article-figure">
+
+  <div class="figure-placeholder large">
+    <img
+      src="images/att_order.png"
+      alt="Illustration showing that self-attention gives the same attention score when the order of Chennai and Bangalore changes."
+    >
+  </div>
+
+</section>
+
+    <!-- =====================================================
+         02 — TWO PHILOSOPHIES
+         ===================================================== -->
+
+    <section class="article-section" id="philosophies">
+
+      <div class="question-number">02</div>
+
+      <h2>
+        Break the attention invariance with position information.
+      </h2>
+
+      <p>
+        There are two broad philosophies.
+      </p>
+
+      <div class="philosophy-grid">
+
+        <div class="philosophy-card">
+
+          <div class="philosophy-label">
+            ABSOLUTE
+          </div>
+
+          <h3>
+            Where am I?
+          </h3>
+
+          <p>
+            Give each position its own positional representation.
+          </p>
+
+          <div class="equation small-equation">
+
+            \[
+            z_p = x_p + PE(p)
+            \]
+
+          </div>
+
+        </div>
+
+
+        <div class="philosophy-card">
+
+          <div class="philosophy-label">
+            RELATIVE
+          </div>
+
+          <h3>
+            Where are you relative to me?
+          </h3>
+
+          <p>
+            Encode information about the displacement between
+            two positions.
+          </p>
+
+          <div class="equation small-equation">
+
+            \[
+            \Delta = j-i
+            \]
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="article-figure">
+
+  <div class="figure-placeholder large">
+
+	<img
+    	src="images/abs_pos_rep.png"
+    	alt="Comparison of absolute and relative positional encoding"
+ 	 >
+
+	</div>
+      </div>
+
+      <div class="article-figure">
+       <div class="figure-placeholder large">
+        <img
+        src="images/rel_pos_rep.png"
+        alt="Comparison of absolute and relative positional encoding"
+         >
+
+        </div>
+      </div>
+
+
+      <p class="question-callout">
+        Let's first see how far absolute position can take us.
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         03 — LEARNED ABSOLUTE
+         ===================================================== -->
+
+    <section class="article-section" id="learned-absolute">
+
+      <div class="question-number">03</div>
+
+      <h2>
+        What if we simply learn a vector for every position?
+      </h2>
+
+      <p>
+        The simplest idea is to associate each position with a
+        learned embedding.
+      </p>
+
+      <div class="equation">
+
+        \[
+        PE(p)=e_p
+        \]
+
+      </div>
+
+      <p>
+        The positional representation can then be added to the
+        token representation:
+      </p>
+
+      <div class="equation">
+
+        \[
+        z_p=x_p+e_p
+        \]
+
+      </div>
+
+      <p>
+        The model can therefore distinguish a token appearing at
+        one position from the same token appearing at another.
+      </p>
+
+      <p class="question-callout">
+        But what happens when we encounter a position that was
+        never present during training?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         04 — SINUSOIDAL
+         ===================================================== -->
+
+    <section class="article-section" id="sinusoidal">
+
+      <div class="question-number">04</div>
+
+      <h2>
+        What if positions didn't have to be learned?
+      </h2>
+
+      <p>
+        Instead of learning an arbitrary vector for every position,
+        we can construct the positional representation using
+        deterministic functions.
+      </p>
+
+      <p>
+        The original Transformer uses sine and cosine functions
+        with different frequencies.
+      </p>
+
+      <div class="equation">
+
+        \[
+        PE(pos,2i)
+        =
+        \sin
+        \left(
+        \frac{pos}
+        {10000^{2i/d}}
+        \right)
+        \]
+
+        \[
+        PE(pos,2i+1)
+        =
+        \cos
+        \left(
+        \frac{pos}
+        {10000^{2i/d}}
+        \right)
+        \]
+
+        \[
+        \omega_i = 10000^{-2i/d}
+        \]
+
+      </div>
+
+      <p>
+        Each pair of dimensions therefore behaves like a small
+        two-dimensional coordinate system with its own frequency.
+      </p>
+
+
+       <div class="article-figure">
+       <div class="figure-placeholder large">
+        <img
+        src="images/sinusoidal.png"
+        alt="Comparison of absolute and relative positional encoding"
+         >
+
+        </div>
+      </div>
+
+
+      <p class="question-callout">
+        But why use both sine and cosine?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         05 — ROTATION PROPERTY
+         ===================================================== -->
+
+    <section class="article-section" id="rotation">
+
+      <div class="question-number">05</div>
+
+      <h2>
+        Can we move from one position to another?
+      </h2>
+
+      <p>
+        Consider one sine/cosine pair with frequency \(\omega\):
+      </p>
+
+      <div class="equation">
+
+        \[
+        PE_i(p)
+        =
+        \begin{bmatrix}
+        \sin(\omega_i p)\\
+        \cos(\omega_i p)
+        \end{bmatrix}
+        \]
+
+      </div>
+
+      <p>
+        Now move from position \(p\) to position \(p+k\).
+      </p>
+
+      <div class="equation">
+
+        \[
+        \begin{bmatrix}
+        \sin(\omega_i(p+k))\\
+        \cos(\omega_i(p+k))
+        \end{bmatrix}
+        =
+        R_i(k)
+        \begin{bmatrix}
+        \sin(\omega_i p)\\
+        \cos(\omega_i p)
+        \end{bmatrix}
+        \]
+
+      </div>
+
+      <p>
+        where \(R_i(k)\) is a rotation matrix whose angle depends
+        on the displacement \(k\).
+      </p>
+
+      <div class="equation">
+
+        \[
+        R_i(k)
+        =
+        \begin{bmatrix}
+        \cos(\omega_i k) & \sin(\omega_i k)\\
+        -\sin(\omega_i k) & \cos(\omega_i k)
+        \end{bmatrix}
+        \]
+
+      </div>
+
+<p>
+  So the positional representation at \(p+k\) can be obtained
+  from the representation at \(p\) through a transformation
+  determined only by the offset \(k\).
+</p>
+
+<p>
+  Every sine/cosine pair has its own frequency, and therefore
+  its own rotation. The important point is that the transformation
+  depends on the <em>relative displacement</em> \(k\), not on the
+  absolute position \(p\).
+</p>
+      <p class="question-callout">
+      The structure exists — but can the model actually learn to use it?
+      </p>
+
+      <p class="question-callout">
+
+        Does this mean sinusoidal position embeddings automatically
+        solve unseen context lengths?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FIGURE 02
+         ===================================================== -->
+
+
+
+    <!-- =====================================================
+         06 — GENERALISATION
+         ===================================================== -->
+
+    <section class="article-section" id="generalisation">
+
+      <div class="question-number">06</div>
+
+      <h2>
+        Can we generate positions we never saw?
+      </h2>
+
+      <p>
+        A deterministic positional function can be evaluated at
+        positions beyond those explicitly encountered during training.
+      </p>
+
+      <p>
+        In that sense, sinusoidal embeddings can construct
+        representations for unseen positions.
+      </p>
+
+      <div class="equation">
+
+        \[
+        PE(10\,000)
+        \]
+
+      </div>
+
+      <p>
+        can be computed even if training never contained that
+        particular position.
+      </p>
+
+      <p class="question-callout">
+        But generating an unseen position is not the same thing
+        as generalising to an unseen context length.
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         07 — CONTEXT LENGTH
+         ===================================================== -->
+
+    <section class="article-section" id="context-length">
+
+      <div class="question-number">07</div>
+
+      <h2>
+        Position extrapolation isn't context extrapolation.
+      </h2>
+
+      <p>
+        A positional function may happily produce a representation
+        for a new position.
+      </p>
+
+      <p>
+        But the Transformer as a whole has been trained on a
+        particular distribution of sequence lengths and positional
+        relationships.
+      </p>
+
+      <p>
+        Moving to substantially longer contexts can therefore
+        introduce a distribution shift in how attention operates.
+      </p>
+
+      <div class="distinction-list">
+
+        <div>
+          <strong>POSITION GENERALISATION</strong>
+          <span>
+            Can we construct a representation for a new position?
+          </span>
+        </div>
+
+        <div>
+          <strong>CONTEXT GENERALISATION</strong>
+          <span>
+            Can the trained model actually use much longer contexts
+            reliably?
+          </span>
+        </div>
+
+      </div>
+
+      <p class="question-callout">
+        Going back to - "The structure exists — but can the model actually learn to use it?" <strong>Maybe not.</strong>
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         08 — TRANSLATION INVARIANCE
+         ===================================================== -->
+
+    <section class="article-section" id="translation">
+
+      <div class="question-number">08</div>
+
+      <h2>
+        What if attention only needs relative position?
+      </h2>
+
+      <p>
+        Imagine shifting an entire sequence by the same amount.
+      </p>
+
+<div class="position-example">
+
+  <div class="position-row">
+    <span>A</span>
+    <span>B</span>
+    <span>C</span>
+    <span>D</span>
+  </div>
+
+  <div class="position-row shifted">
+    <span>A</span>
+    <span>B</span>
+    <span>C</span>
+    <span>D</span>
+  </div>
+
+</div>
+      <p>
+        The absolute coordinates have changed.
+      </p>
+
+      <p>
+        But the relationship between the tokens has not.
+      </p>
+
+      <div class="equation">
+
+        \[
+        (j-i)
+        =
+        ((j+c)-(i+c))
+        \]
+
+      </div>
+
+      <p>
+        If positional information depends only on \(j-i\), shifting
+        every position by the same amount leaves the relationship
+        unchanged.
+      </p>
+
+      <p>
+        This gives us the intuition of
+        <strong>translation invariance</strong>.
+      </p>
+
+      <p class="question-callout">
+        Relative position does not ask "where am I?"
+        It asks "how far are you from me?"
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         09 — SHAW
+         ===================================================== -->
+
+    <section class="article-section" id="shaw">
+
+      <div class="question-number">09</div>
+
+      <h2>
+        What if relative position becomes part of attention?
+      </h2>
+
+      <p>
+        Shaw et al. introduced a relative-position formulation in
+        which learned representations associated with relative
+        displacement can influence attention.
+      </p>
+
+      <p>
+        For a query at position \(i\) attending to a key at position
+        \(j\), we can think of the relative position as:
+      </p>
+
+      <div class="equation">
+
+        \[
+        p_{ij}=p_{i-j}
+        \]
+
+      </div>
+
+      <p>
+        Relative position can affect the attention score through
+        the key side:
+      </p>
+
+      <div class="equation">
+
+        \[
+        e_{ij}
+        =
+        \frac{
+        q_i^T(k_j+p_{ij})
+        }{
+        \sqrt{d_k}
+        }
+        \]
+
+      </div>
+
+      <p>
+        But Shaw's formulation also allows relative-position
+        representations to influence the values being aggregated:
+      </p>
+
+      <div class="equation">
+
+        \[
+        z_i
+        =
+        \sum_j
+        \alpha_{ij}
+        (v_j+p_{ij})
+        \]
+
+      </div>
+
+      <p>
+        This gives relative position two roles:
+      </p>
+
+      <div class="distinction-list">
+
+        <div>
+          <strong>KEY SIDE</strong>
+          <span>
+            Relative position can influence how strongly two tokens
+            attend to each other.
+          </span>
+        </div>
+
+        <div>
+          <strong>VALUE SIDE</strong>
+          <span>
+            Relative position can also influence what information
+            is actually aggregated.
+          </span>
+        </div>
+
+      </div>
+
+      <p class="question-callout">
+        But can we make the separation between content and position
+        even cleaner?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         10 — TRANSFORMER XL
+         ===================================================== -->
+
+    <section class="article-section" id="transformer-xl">
+
+      <div class="question-number">10</div>
+
+      <h2>
+        Transformer-XL Attention
+      </h2>
+
+      <p>
+        Relative position gives us a more natural way to describe
+        the relationship between a query position \(i\) and a key
+        position \(j\): their displacement \(i-j\).
+      </p>
+
+      <p>
+        Transformer-XL takes this idea further by decomposing the
+        attention score into four different interactions:
+      </p>
+
+      <div class="equation">
+
+        \[
+        A_{i,j}
+        =
+        \underbrace{q_i^T k_j}_{\text{content-content}}
+        +
+        \underbrace{q_i^T p_{i-j}}_{\text{content-relative position}}
+        +
+        \underbrace{u^T k_j}_{\text{global content}}
+        +
+        \underbrace{v^T p_{i-j}}_{\text{global relative position}}
+        \]
+
+      </div>
+
+
+      <!-- CONTENT TO CONTENT -->
+
+      <div class="xl-term">
+
+        <div class="xl-term-equation">
+          \[
+          q_i^T k_j
+          \]
+        </div>
+
+        <div class="xl-term-content">
+
+          <h3>
+            Content-to-content interaction
+          </h3>
+
+          <p>
+            This is the familiar attention interaction.
+          </p>
+
+          <p>
+            The query at position \(i\) asks:
+          </p>
+
+          <div class="term-question">
+            “Does the content at position \(j\)
+            contain what I am looking for?”
+          </div>
+
+          <p>
+            The query \(q_i\) represents what the current token is
+            looking for, while \(k_j\) represents what the token at
+            position \(j\) offers.
+          </p>
+
+          <p>
+            Their dot product measures how compatible those two
+            pieces of content are.
+          </p>
+
+          <div class="term-takeaway">
+            Content ↔ Content
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- CONTENT TO RELATIVE POSITION -->
+
+      <div class="xl-term">
+
+        <div class="xl-term-equation">
+          \[
+          q_i^T p_{ij}
+          \]
+        </div>
+
+        <div class="xl-term-content">
+
+          <h3>
+            Content interacting with relative position
+          </h3>
+
+          <p>
+            Now the query does not interact with the content of the
+            key. Instead, it interacts with the relative position
+            between the two tokens.
+          </p>
+
+          <div class="term-question">
+            “Does this query care about information
+            occurring at this relative distance?”
+          </div>
+
+          <p>
+            Here \(p_{ij}\) represents the relative displacement
+            between positions \(i\) and \(j\).
+          </p>
+
+          <p>
+            This allows different queries to have different
+            preferences for different relative positions.
+          </p>
+
+          <div class="term-takeaway">
+            Content ↔ Relative position
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- GLOBAL CONTENT -->
+
+      <div class="xl-term">
+
+        <div class="xl-term-equation">
+          \[
+          u^T k_j
+          \]
+        </div>
+
+        <div class="xl-term-content">
+
+          <h3>
+            Global content bias
+          </h3>
+
+          <p>
+            This term removes the current query from the interaction.
+          </p>
+
+          <div class="term-question">
+            “Is this kind of content generally useful,
+            regardless of what the current query is asking?”
+          </div>
+
+          <p>
+            \(u\) is a learned global vector. Its interaction with
+            \(k_j\) gives the model a content preference that does not
+            depend on the particular query at position \(i\).
+          </p>
+
+          <p>
+            So the model can learn that certain types of content are
+            generally worth attending to, independently of the current
+            query.
+          </p>
+
+          <div class="term-takeaway">
+            Global preference ↔ Content
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- GLOBAL POSITION -->
+
+      <div class="xl-term">
+
+        <div class="xl-term-equation">
+          \[
+          v^T p_{ij}
+          \]
+        </div>
+
+        <div class="xl-term-content">
+
+          <h3>
+            Global positional bias
+          </h3>
+
+          <p>
+            Finally, neither the query content nor the key content
+            appears in this term.
+          </p>
+
+          <div class="term-question">
+            “Is this relative distance generally useful?”
+          </div>
+
+          <p>
+            The learned vector \(v\) interacts with the relative-position
+            representation \(p_{ij}\).
+          </p>
+
+          <p>
+            This allows the model to learn general preferences for
+            relative positions, independently of the particular content
+            being processed.
+          </p>
+
+          <div class="term-takeaway">
+            Global preference ↔ Relative position
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUMMARY -->
+
+      <div class="xl-summary">
+
+        <h3>
+          Four questions. One attention score.
+        </h3>
+
+        <div class="xl-summary-grid">
+
+          <div>
+            <strong>\(q_i^T k_j\)</strong>
+            <span>
+              Does their content match?
+            </span>
+          </div>
+
+          <div>
+            <strong>\(q_i^T r_{i-j}\)</strong>
+            <span>
+              Does this query care about this relative distance?
+            </span>
+          </div>
+
+          <div>
+            <strong>\(u^T k_j\)</strong>
+            <span>
+              Is this content generally useful?
+            </span>
+          </div>
+
+          <div>
+            <strong>\(v^T r_{i-j}\)</strong>
+            <span>
+              Is this relative distance generally useful?
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <p>
+        The important conceptual move is that Transformer-XL separates
+        <strong>content interactions</strong> from
+        <strong>relative positional interactions</strong>, while also
+        allowing global preferences for each.
+      </p>
+
+      <p class="question-callout">
+        Can relative position be made simpler?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         11 — T5
+         ===================================================== -->
+
+    <section class="article-section" id="t5">
+
+      <div class="question-number">11</div>
+
+      <h2>
+        Do we really need a separate representation for every distance?
+      </h2>
+
+      <p>
+        Suppose we assign a learned parameter to every possible
+        relative distance.
+      </p>
+
+      <p>
+        As context grows, the number of possible distances grows too.
+      </p>
+
+      <p class="question-callout">
+        Do we really need to distinguish every distant position
+        from its neighbour?
+      </p>
+
+      <p>
+        T5 takes a simpler approach: group relative distances into
+        a finite number of buckets.
+      </p>
+
+      <div class="equation">
+
+        \[
+        (i-j)
+        \longrightarrow
+        \operatorname{bucket}(i-j)
+        \]
+
+      </div>
+
+      <p>
+        Each bucket gets a learned scalar bias.
+      </p>
+
+      <div class="equation">
+
+        \[
+        A_{ij}
+        =
+        \frac{q_i^Tk_j}{\sqrt{d_k}}
+        +
+        b_{\operatorname{bucket}(i-j)}
+        \]
+
+      </div>
+
+      <p>
+        Notice what is happening here.
+      </p>
+
+      <p>
+        We are not adding a positional vector to the token
+        representation.
+      </p>
+
+      <p>
+        We are directly modifying the
+        <strong>attention score</strong>.
+      </p>
+
+      <div class="highlight-note">
+
+        <strong>
+          T5 relative position
+        </strong>
+
+        <span>
+          A learned scalar bias added to the attention logits —
+          not a positional vector added to the token representation.
+        </span>
+
+      </div>
+
+      <p>
+        Nearby distances can be represented more precisely, while
+        increasingly distant positions can share coarser buckets.
+      </p>
+
+      <p class="question-callout">
+  What if we want relative position — but don't want to learn
+  a separate positional embedding vector or scalar?
+</p>
+
+    </section>
+
+
+
+<section class="article-section rope-section" id="rope">
+
+  <div class="section-label">
+    A SMALL DETOUR
+  </div>
+
+  <h2>
+    Exponentials
+  </h2>
+
+  <p>
+    Before we continue, let us take a small detour into exponentials.
+    There is a particularly useful property of the complex exponential
+    that will give us exactly the kind of relative-position structure
+    we are looking for.
+  </p>
+
+  <div class="equation">
+    \[
+    e^{i\theta} = \cos\theta + i\sin\theta
+    \]
+  </div>
+
+  <p>
+    Multiply a complex number by \(e^{ip\theta}\), where \(p\) is the position of the complex number \(z\).
+  </p>
+
+  <div class="equation">
+    \[
+    z_p = e^{ip\theta}z
+    \]
+  </div>
+
+  <p>
+    Now consider two positions, \(p\) and \(r\).
+    If they interact as below
+  </p>
+
+  <div class="equation">
+    \[
+    \overline{z_p}z_r
+    \]
+  </div>
+
+  <p>
+    Substituting the position-dependent representations gives
+  </p>
+
+  <div class="equation">
+    \[
+    \begin{aligned}
+    \overline{z_p}z_r
+    &= \overline{e^{ip\theta}z}\;e^{ir\theta}z \\[4pt]
+    &= e^{-ip\theta}e^{ir\theta}\,\overline{z}z \\[4pt]
+    &= e^{i(r-p)\theta}\,\overline{z}z
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="insight-box">
+    <strong>And this is the interesting part.</strong>
+    <p>
+      The interaction no longer depends on \(p\) and \(r\) separately.
+      It depends on their difference:
+    </p>
+
+    <div class="equation">
+      \[
+      r-p
+      \]
+    </div>
+
+    <p>
+      In other words, <strong>relative position emerges naturally from
+      the interaction of the position-dependent representations.</strong>
+    </p>
+  </div>
+
+  <p class="question-callout">
+    We have found a way to make the interaction depend on relative
+    position.
+    <br><br>
+    <strong>So how can we bring this idea into attention?</strong>
+  </p>
+
+</section>
+
+
+<section class="article-section rope section">
+
+  <div class="section-label">
+    ROTARY POSITION EMBEDDING
+  </div>
+
+  <h2>
+    From Exponentials to Rotation
+  </h2>
+
+  <p>
+    Euler's identity tells us that
+  </p>
+
+  <div class="equation">
+    \[
+    e^{ip\theta}
+    =
+    \cos(p\theta)+i\sin(p\theta)
+    \]
+  </div>
+
+  <p>
+    Multiplication by this complex exponential is simply a rotation
+    in two dimensions.
+  </p>
+
+  <div class="equation">
+    \[
+    R(p\theta)
+    =
+    \begin{bmatrix}
+    \cos(p\theta) & -\sin(p\theta)\\
+    \sin(p\theta) & \cos(p\theta)
+    \end{bmatrix}
+    \]
+  </div>
+
+  <p>
+    So instead of thinking in terms of complex numbers, we can rotate
+    each two-dimensional pair of features.
+  </p>
+
+  <div class="equation">
+    \[
+    x_p = R(p\theta)x
+    \]
+  </div>
+
+  <p>
+    And this gives us the key idea behind RoPE:
+  </p>
+
+  <div class="insight-box">
+    <strong>Position does not need to be added to the representation.</strong>
+
+    <p>
+      Instead, position determines <strong>how much the representation
+      is rotated</strong>.
+    </p>
+  </div>
+
+</section>
+
+
+<section class="article-section">
+
+  <div class="section-label">
+    APPLYING IT TO ATTENTION
+  </div>
+
+  <h2>
+    Rotate the Queries and Keys
+  </h2>
+
+  <p>
+    Attention compares queries and keys through their dot product.
+    So if we want relative position to appear in this interaction,
+    we should apply the position-dependent rotation directly to
+    queries and keys.
+  </p>
+
+  <div class="equation">
+    \[
+    q_r' = R(r\theta)q_n
+    \qquad
+    k_p' = R(p\theta)k_m
+    \]
+  </div>
+
+  <p>
+    The attention score between positions \(n\) and \(m\) is now
+  </p>
+
+  <div class="equation">
+    \[
+    {q_r'}^{T}k_p'
+    =
+    \big(R(r\theta)q_r\big)^T
+    \big(R(p\theta)k_p\big)
+    \]
+  </div>
+
+  <p>
+    Since a rotation matrix satisfies
+  </p>
+
+<div class="equation">
+    \[
+    R(\theta)^T = R(-\theta),
+    \qquad
+    R(a)R(b)=R(a+b),
+    \]
+  </div>
+
+  <p>
+    we obtain
+  </p>
+
+  <div class="equation">
+    \[
+    \begin{aligned}
+    {q_r'}^{T}k_p'
+    &= q_r^T R(-r\theta)R(p\theta)k_p\\[4pt]
+    &= q_r^T R((p-r)\theta)k_p
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="insight-box">
+    <strong>Relative position appears inside the attention score.</strong>
+
+    <p>
+      The interaction depends on
+    </p>
+
+    <div class="equation">
+      \[
+      m-n
+      \]
+    </div>
+
+    <p>
+      rather than requiring us to explicitly construct a relative
+      positional embedding.
+    </p>
+  </div>
+
+</section>
+
+
+<section class="article-section">
+
+  <div class="section-label">
+    MULTIPLE FREQUENCIES
+  </div>
+
+  <h2>
+    One Rotation Is Not Enough
+  </h2>
+
+  <p>
+    So far, we used a single frequency \(\theta\).
+    But a representation has many dimensions.
+    RoPE therefore divides the dimensions into two-dimensional pairs
+    and assigns each pair its own rotation frequency.
+  </p>
+
+
+  <p class="question-callout">
+  Sounds familiar...
+  <br><br>
+  <strong>
+    Each pair has its own frequency.
+    Where have we seen this before?
+  </strong>
+</p>
+
+
+<p>
+  Exactly — sinusoidal positional encoding.
+  We saw the same multi-frequency construction there:
+  different dimensions used different frequencies to capture
+  positional information at different scales.
+</p>
+
+
+  <div class="equation">
+    \[
+    \theta_i = 10000^{-2i/d}
+    \]
+  </div>
+
+  <p>
+    For the \(i\)-th pair of dimensions, the rotation at position \(n\)
+    is therefore
+  </p>
+
+  <div class="equation">
+    \[
+    R(n\theta_i)
+    =
+    \begin{bmatrix}
+    \cos(n\theta_i) & -\sin(n\theta_i)\\
+    \sin(n\theta_i) & \cos(n\theta_i)
+    \end{bmatrix}
+    \]
+  </div>
+
+  <p>
+    The same operation is applied independently to every pair of
+    dimensions, with each pair rotating at its own frequency.
+  </p>
+
+  <p>
+    This gives the model multiple scales of positional information:
+    some dimensions rotate rapidly, while others rotate much more
+    slowly.
+  </p>
+
+
+
+
+<p class="question-callout">
+  The frequencies are familiar.
+  <br><br>
+  <strong>
+    Sinusoidal PE adds a positional signal.
+    RoPE rotates the representation itself.
+  </strong>
+</p>
+
+
+<section>
+
+
+
+
+
+    <section class="journey-section">
+
+      <div class="section-label">
+        THE JOURNEY
+      </div>
+
+      <h2>
+        From knowing where we are<br>
+        to knowing where we are relative to each other.
+      </h2>
+
+      <div class="journey-map">
+
+        <div>
+          <strong>LEARNED ABSOLUTE</strong>
+          <span>
+            Give every position its own embedding.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div>
+          <strong>SINUSOIDAL</strong>
+          <span>
+            Construct positions using multiple frequencies.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div>
+          <strong>RELATIVE POSITION</strong>
+          <span>
+            Focus on displacement rather than absolute coordinate.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div>
+          <strong>SHAW</strong>
+          <span>
+            Let relative position influence keys and values.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div>
+          <strong>TRANSFORMER-XL</strong>
+          <span>
+            Separate content and positional interactions.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div>
+          <strong>T5</strong>
+          <span>
+            Bucket relative distances and add scalar attention biases.
+          </span>
+        </div>
+
+<span class="journey-arrow">↓</span>
+        <div class="journey-current">
+          <strong>RoPE</strong>
+          <span>
+            Rotate the queries and keys.
+          </span>
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+      <p class="final-link">
+        <a href="../../mechanics.html">
+          ← Back to Model Machinery
+        </a>
+      </p>
+
+    </section>
+
+
+
+  </main>
+
+
+
+  <script src="position-embeddings.js"></script>
+
+  <!-- =====================================================
+       MATHJAX
+       ===================================================== -->
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      }
+    };
+  </script>
+
+  <script
+    async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+</body>
+</html>
