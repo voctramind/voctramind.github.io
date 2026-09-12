@@ -1,27 +1,25 @@
 /* =========================================================
-   MODEL MECHANICS — KNOWLEDGE MAP
+   MODEL MECHANICS — Knowledge Map
    ========================================================= */
 
 const nodes = [
 
   /* =========================================================
-     TRANSFORMER CLUSTER
+     TRANSFORMER
      ========================================================= */
 
   {
     id: "transformer",
-    label: "TRANSFORMER/LLMs",
+    label: "TRANSFORMER",
     type: "category",
     family: "transformer",
     x: 28,
-    y: 35,
+    y: 34,
     connections: [
       "attention",
       "position",
-      "norms",
       "parameter-reduction",
-      "lora",
-      "act"
+      "lora"
     ]
   },
 
@@ -30,10 +28,10 @@ const nodes = [
     label: "ATTENTION",
     type: "topic",
     family: "transformer",
-    x: 13,
-    y: 30,
-    href: "Transformer/Attention/attention.html",
-    connections: ["transformer"]
+    x: 10,
+    y: 25,
+    research: true,
+    href: "Transformer/Attention/attention.html"
   },
 
   {
@@ -41,59 +39,79 @@ const nodes = [
     label: "POSITION EMBEDDINGS",
     type: "topic",
     family: "transformer",
-    x: 23,
-    y: 50,
-    href: "Transformer/Pos_embed/position-embeddings.html",
-    connections: ["transformer"]
-  },
-
-  {
-    id: "norms",
-    label: "NORMALISATION",
-    type: "topic",
-    family: "transformer",
-    x: 33,
-    y: 25,
-    href: "normalisation.html",
-    connections: ["transformer"]
+    x: 17,
+    y: 57,
+    href: "Transformer/Pos_embed/position-embeddings.html"
   },
 
   {
     id: "parameter-reduction",
-    label: "PARAMETER-REDUCTION",
+    label: "PARAMETER REDUCTION",
     type: "topic",
     family: "transformer",
-    x: 20,
-    y: 15,
-    href: "parameter-reduction.html",
-    connections: ["transformer"]
+    x: 18,
+    y: 14,
+    research: true
   },
 
   {
     id: "lora",
-    label: "LORA",
+    label: "LoRA",
     type: "topic",
     family: "transformer",
-    x: 34,
-    y: 40,
-    href: "lora.html",
-    connections: ["transformer"]
-  },
-
-  {
-    id: "act",
-    label: "ACTIVATION-FUNCTIONS",
-    type: "topic",
-    family: "transformer",
-    x: 54,
-    y: 50,
-    href: "Models/activation.html",
-    connections: ["transformer"]
+    x: 15,
+    y: 40
   },
 
 
   /* =========================================================
-     STATE SPACE MODELS
+     FOUNDATIONS
+     ========================================================= */
+
+  {
+    id: "foundations",
+    label: "FOUNDATIONS",
+    type: "category",
+    family: "foundations",
+    x: 50,
+    y: 42,
+    connections: [
+      "normalisation",
+      "activation-functions",
+      "optimizers"
+    ]
+  },
+
+  {
+    id: "normalisation",
+    label: "NORMALISATION",
+    type: "topic",
+    family: "foundations",
+    x: 45,
+    y: 11
+  },
+
+  {
+    id: "activation-functions",
+    label: "ACTIVATION FUNCTIONS",
+    type: "topic",
+    family: "foundations",
+    x: 57,
+    y: 60
+  },
+
+  {
+    id: "optimizers",
+    label: "OPTIMIZERS",
+    type: "topic",
+    family: "foundations",
+    x: 55,
+    y: 28
+  },
+
+
+  /* =========================================================
+     SSM
      ========================================================= */
 
   {
@@ -101,12 +119,12 @@ const nodes = [
     label: "STATE SPACE MODELS",
     type: "category",
     family: "ssm",
-    x: 82,
-    y: 50,
+    x: 80,
+    y: 31,
     connections: [
       "mamba",
-      "RNN_to_CNN",
-      "Hippo/S4"
+      "rnn-to-cnn",
+      "hippo-s4"
     ]
   },
 
@@ -115,41 +133,32 @@ const nodes = [
     label: "MAMBA",
     type: "topic",
     family: "ssm",
-    x: 66,
-    y: 28,
-    connections: ["ssm"]
+    x: 73,
+    y: 19
   },
 
   {
-    id: "RNN_to_CNN",
+    id: "rnn-to-cnn",
     label: "CNN VIEW OF RNN",
     type: "topic",
     family: "ssm",
-    x: 75,
-    y: 25,
-    href: "Models/RNN_to_CNN.html",
-    connections: ["mamba"]
+    x: 85,
+    y: 16
   },
 
   {
-    id: "Hippo/S4",
-    label: "HiPPO/S4",
+    id: "hippo-s4",
+    label: "HIPPO/S4",
     type: "topic",
     family: "ssm",
-    x: 70,
-    y: 60,
-    href: "Models/S4.html",
-    connections: [
-      "RNN_to_CNN",
-      "mamba",
-      "ssm"
-    ]
+    x: 90,
+    y: 45
   },
 
 
   /* =========================================================
      GENERATIVE AI
-     SSM / CYAN FAMILY
+     SSM / TEAL FAMILY
      ========================================================= */
 
   {
@@ -157,10 +166,12 @@ const nodes = [
     label: "GENERATIVE AI",
     type: "category",
     family: "ssm",
-    x: 38,
-    y: 80,
+    x: 37,
+    y: 69,
     connections: [
-      "diffusion"
+      "diffusion",
+      "vae",
+      "gan"
     ]
   },
 
@@ -169,10 +180,26 @@ const nodes = [
     label: "DIFFUSION",
     type: "topic",
     family: "ssm",
-    x: 19,
-    y: 88,
-    href: "diffusion.html",
-    connections: ["generative-ai"]
+    x: 27,
+    y: 76
+  },
+
+  {
+    id: "vae",
+    label: "VAE",
+    type: "topic",
+    family: "ssm",
+    x: 32,
+    y: 94
+  },
+
+  {
+    id: "gan",
+    label: "GAN",
+    type: "topic",
+    family: "ssm",
+    x: 48,
+    y: 91
   },
 
 
@@ -182,12 +209,12 @@ const nodes = [
      ========================================================= */
 
   {
-    id: "interesting",
+    id: "interesting-stuff",
     label: "INTERESTING STUFF",
     type: "category",
     family: "transformer",
-    x: 72,
-    y: 78,
+    x: 83,
+    y: 79,
     connections: [
       "grokking",
       "double-descent"
@@ -199,10 +226,8 @@ const nodes = [
     label: "GROKKING",
     type: "topic",
     family: "transformer",
-    x: 58,
-    y: 87,
-    href: "grokking.html",
-    connections: ["interesting"]
+    x: 75,
+    y: 95
   },
 
   {
@@ -210,18 +235,88 @@ const nodes = [
     label: "DOUBLE DESCENT",
     type: "topic",
     family: "transformer",
-    x: 87,
-    y: 85,
-    href: "double-descent.html",
-    connections: ["interesting"]
+    x: 75,
+    y: 61
   }
 
 ];
 
 
 /* =========================================================
-   DOM
+   DESCRIPTIONS
    ========================================================= */
+
+const descriptions = {
+
+  transformer:
+    "The Transformer architecture and the mechanisms that make attention-based models work.",
+
+  attention:
+    "How attention allows a model to selectively relate different positions in a sequence.",
+
+  position:
+    "How models represent positional information in sequences, including sinusoidal embeddings and RoPE.",
+
+  "parameter-reduction":
+    "Methods for reducing the number of trainable parameters while retaining model capability.",
+
+  lora:
+    "Low-Rank Adaptation for parameter-efficient fine-tuning of large models.",
+
+  foundations:
+    "Core mechanisms that appear across neural network architectures.",
+
+  normalisation:
+    "Normalisation mechanisms that control activation statistics and improve neural network training.",
+
+  "activation-functions":
+    "Nonlinear functions that determine how neural networks transform their intermediate representations.",
+
+  optimizers:
+    "Algorithms that update model parameters during training to minimise an objective.",
+
+  ssm:
+    "State Space Models provide an alternative framework for modelling long sequences and temporal dynamics.",
+
+  mamba:
+    "A selective state space architecture designed for efficient sequence modelling.",
+
+  "rnn-to-cnn":
+    "A view of recurrent sequence processing through the lens of convolution and state space structure.",
+
+  "hippo-s4":
+    "The mathematical foundations connecting HiPPO projections and structured state space models such as S4.",
+
+  "generative-ai":
+    "Generative models that learn to create new data from learned representations or distributions.",
+
+  diffusion:
+    "Generative models based on progressively adding and reversing noise.",
+
+  vae:
+    "Variational Autoencoders learn structured latent representations through probabilistic encoding and decoding.",
+
+  gan:
+    "Generative Adversarial Networks learn generation through competition between a generator and discriminator.",
+
+  "interesting-stuff":
+    "Interesting empirical phenomena that reveal unexpected behaviour in modern neural networks.",
+
+  grokking:
+    "The phenomenon where a model suddenly generalises long after it has apparently memorised the training data.",
+
+  "double-descent":
+    "The non-monotonic relationship between model complexity and generalisation error."
+
+};
+
+
+/* =========================================================
+   DOM ELEMENTS
+   ========================================================= */
+
+const web =
+  document.querySelector(".mechanics-web");
 
 const nodesContainer =
   document.getElementById("mechanicsNodes");
@@ -229,8 +324,8 @@ const nodesContainer =
 const svg =
   document.getElementById("mechanicsLines");
 
-const topicKicker =
-  document.getElementById("mechanicsTopicKicker");
+const topicPanel =
+  document.getElementById("mechanicsTopicPanel");
 
 const topicTitle =
   document.getElementById("mechanicsTopicTitle");
@@ -238,62 +333,8 @@ const topicTitle =
 const topicText =
   document.getElementById("mechanicsTopicText");
 
-
-/* =========================================================
-   TOPIC DESCRIPTIONS
-   ========================================================= */
-
-const descriptions = {
-
-  transformer:
-    "The architecture that brought attention, positional representations and normalisation together into a powerful sequence model.",
-
-  attention:
-    "How queries, keys and values let a model decide which parts of a sequence matter to one another.",
-
-  position:
-    "How a model can represent order when attention itself has no inherent notion of position.",
-
-  norms:
-    "Why normalisation is needed in deep networks, and how different normalisation choices affect optimisation and representation.",
-
-  "parameter-reduction":
-    "Methods for reducing the number of trainable parameters while adapting or extending large neural networks.",
-
-  lora:
-    "A parameter-efficient adaptation method that learns low-rank updates instead of updating all model weights.",
-
-  act:
-    "Nonlinear functions that allow neural networks to represent complex transformations.",
-
-  ssm:
-    "A mathematical framework for representing long-range sequence dynamics through a latent state.",
-
-  mamba:
-    "A selective state-space approach that revisits sequence modelling through efficient recurrent state updates.",
-
-  "RNN_to_CNN":
-    "A convolutional view of recurrent sequence processing and its connection to state-space models.",
-
-  "Hippo/S4":
-    "The HiPPO and S4 framework for constructing structured state-space models capable of representing long-range dependencies.",
-
-  "generative-ai":
-    "Models that learn to generate new data by learning the structure of a data distribution.",
-
-  diffusion:
-    "A generative framework that learns to reverse a gradual corruption process and recover structure from noise.",
-
-  interesting:
-    "Interesting phenomena in deep learning that reveal surprising behaviour in optimisation, generalisation and model capacity.",
-
-  grokking:
-    "A surprising phenomenon where a model appears to memorise first and only later suddenly discovers a generalising solution.",
-
-  "double-descent":
-    "Why increasing model capacity can sometimes make test error rise and then fall again."
-
-};
+const topicKicker =
+  document.getElementById("mechanicsTopicKicker");
 
 
 /* =========================================================
@@ -306,72 +347,83 @@ function createNodes() {
 
   nodes.forEach(node => {
 
-    const element =
-      document.createElement("button");
+    const element = document.createElement("div");
 
-    element.type = "button";
+    /*
+     * IMPORTANT:
+     * These class names MUST match mechanics.css:
+     *
+     * .mechanics-node.category
+     * .mechanics-node.topic
+     * .mechanics-node.family-transformer
+     * .mechanics-node.family-ssm
+     * .mechanics-node.family-foundations
+     */
 
-    element.className =
-      `mechanics-node ${node.type} ` +
-      `${node.family ? `family-${node.family}` : ""}`;
+    element.classList.add(
+      "mechanics-node",
+      node.type === "category"
+        ? "category"
+        : "topic",
+      `family-${node.family}`
+    );
 
     element.dataset.id = node.id;
-
-    element.textContent = node.label;
-
-
-    /* -------------------------------------------------------
-       RESEARCH MARKERS
-       ------------------------------------------------------- */
-
-    const researchNodes = [
-      "ATTENTION",
-      "PARAMETER-REDUCTION"
-    ];
-
-    if (researchNodes.includes(node.label)) {
-
-      const star =
-        document.createElement("span");
-
-      star.className = "research-star";
-      star.textContent = " ★";
-
-      element.appendChild(star);
-    }
-
-
-    /* -------------------------------------------------------
-       POSITION
-       ------------------------------------------------------- */
+    element.dataset.family = node.family;
 
     element.style.left = `${node.x}%`;
     element.style.top = `${node.y}%`;
 
+    element.textContent = node.label;
 
-    /* -------------------------------------------------------
-       CLICK
-       ------------------------------------------------------- */
+    if (node.research) {
+      element.classList.add("research-topic");
+    }
 
-    element.addEventListener("click", () => {
+    element.addEventListener("click", event => {
+
+      event.stopPropagation();
 
       if (node.href) {
-
         window.location.href = node.href;
+        return;
+      }
 
-      } else {
+      showTopic(node.id);
 
-        showTopic(node);
+      if (node.type === "category") {
         highlightNode(node.id);
-
       }
 
     });
 
-
     nodesContainer.appendChild(element);
 
   });
+
+}
+
+
+/* =========================================================
+   NODE CENTER
+   ========================================================= */
+
+function getNodeCenter(element, webRect) {
+
+  const rect =
+    element.getBoundingClientRect();
+
+  return {
+    x:
+      rect.left +
+      rect.width / 2 -
+      webRect.left,
+
+    y:
+      rect.top +
+      rect.height / 2 -
+      webRect.top
+  };
 
 }
 
@@ -384,35 +436,47 @@ function drawConnections() {
 
   svg.innerHTML = "";
 
-  const map = {};
+  const webRect =
+    web.getBoundingClientRect();
 
-  nodes.forEach(node => {
-    map[node.id] = node;
-  });
+  nodes.forEach(parent => {
 
+    if (!parent.connections) return;
 
-  nodes.forEach(node => {
+    const parentElement =
+      document.querySelector(
+        `[data-id="${parent.id}"]`
+      );
 
-    if (!node.connections) return;
+    if (!parentElement) return;
 
-    node.connections.forEach(targetId => {
+    const parentCenter =
+      getNodeCenter(
+        parentElement,
+        webRect
+      );
 
-      const target = map[targetId];
+    parent.connections.forEach(childId => {
 
-      if (!target) return;
+      const child =
+        nodes.find(
+          node => node.id === childId
+        );
 
+      if (!child) return;
 
-      /* -----------------------------------------------------
-         DRAW EACH CONNECTION ONLY ONCE
-         ----------------------------------------------------- */
+      const childElement =
+        document.querySelector(
+          `[data-id="${child.id}"]`
+        );
 
-      if (
-        nodes.findIndex(n => n.id === node.id) >
-        nodes.findIndex(n => n.id === targetId)
-      ) {
-        return;
-      }
+      if (!childElement) return;
 
+      const childCenter =
+        getNodeCenter(
+          childElement,
+          webRect
+        );
 
       const line =
         document.createElementNS(
@@ -420,36 +484,51 @@ function drawConnections() {
           "line"
         );
 
-      line.classList.add("mechanics-line");
+      /*
+       * IMPORTANT:
+       * CSS expects:
+       *
+       * .mechanics-line.family-ssm
+       * .mechanics-line.family-transformer
+       * .mechanics-line.family-foundations
+       */
 
+      line.classList.add(
+        "mechanics-line",
+        `family-${parent.family}`
+      );
 
-      /* -----------------------------------------------------
-         FAMILY COLOUR
-         ----------------------------------------------------- */
+      line.dataset.parent =
+        parent.id;
 
-      const family =
-        node.family || target.family;
+      line.dataset.child =
+        child.id;
 
-      if (family) {
-        line.classList.add(`family-${family}`);
-      }
+      line.setAttribute(
+        "x1",
+        parentCenter.x
+      );
 
+      line.setAttribute(
+        "y1",
+        parentCenter.y
+      );
 
-      /* -----------------------------------------------------
-         CONNECTION IDS
-         ----------------------------------------------------- */
+      line.setAttribute(
+        "x2",
+        childCenter.x
+      );
 
-      line.dataset.from = node.id;
-      line.dataset.to = target.id;
+      line.setAttribute(
+        "y2",
+        childCenter.y
+      );
 
       svg.appendChild(line);
 
     });
 
   });
-
-
-  updateLinePositions();
 
 }
 
@@ -460,67 +539,60 @@ function drawConnections() {
 
 function updateLinePositions() {
 
-  const mapElement =
-    document.querySelector(".mechanics-web");
+  const webRect =
+    web.getBoundingClientRect();
 
-  if (!mapElement) return;
+  document
+    .querySelectorAll(".mechanics-line")
+    .forEach(line => {
 
-  const mapRect =
-    mapElement.getBoundingClientRect();
+      const parentElement =
+        document.querySelector(
+          `[data-id="${line.dataset.parent}"]`
+        );
 
-  const width = mapRect.width;
-  const height = mapRect.height;
+      const childElement =
+        document.querySelector(
+          `[data-id="${line.dataset.child}"]`
+        );
 
+      if (!parentElement || !childElement) {
+        return;
+      }
 
-  svg.setAttribute("width", width);
-  svg.setAttribute("height", height);
+      const parentCenter =
+        getNodeCenter(
+          parentElement,
+          webRect
+        );
 
-  svg.setAttribute(
-    "viewBox",
-    `0 0 ${width} ${height}`
-  );
+      const childCenter =
+        getNodeCenter(
+          childElement,
+          webRect
+        );
 
-
-  const lines =
-    svg.querySelectorAll(".mechanics-line");
-
-
-  lines.forEach(line => {
-
-    const from =
-      nodes.find(
-        node => node.id === line.dataset.from
+      line.setAttribute(
+        "x1",
+        parentCenter.x
       );
 
-    const to =
-      nodes.find(
-        node => node.id === line.dataset.to
+      line.setAttribute(
+        "y1",
+        parentCenter.y
       );
 
-    if (!from || !to) return;
+      line.setAttribute(
+        "x2",
+        childCenter.x
+      );
 
+      line.setAttribute(
+        "y2",
+        childCenter.y
+      );
 
-    line.setAttribute(
-      "x1",
-      (from.x / 100) * width
-    );
-
-    line.setAttribute(
-      "y1",
-      (from.y / 100) * height
-    );
-
-    line.setAttribute(
-      "x2",
-      (to.x / 100) * width
-    );
-
-    line.setAttribute(
-      "y2",
-      (to.y / 100) * height
-    );
-
-  });
+    });
 
 }
 
@@ -529,73 +601,102 @@ function updateLinePositions() {
    SHOW TOPIC
    ========================================================= */
 
-function showTopic(node) {
+function showTopic(id) {
+
+  const node =
+    nodes.find(
+      n => n.id === id
+    );
+
+  if (!node) return;
+
+  topicTitle.textContent =
+    node.label;
+
+  topicText.textContent =
+    descriptions[id] ||
+    "This topic is part of the Model Mechanics journey.";
 
   if (topicKicker) {
 
     topicKicker.textContent =
       node.type === "category"
         ? "MODEL MACHINERY"
-        : "MODEL MECHANICS";
+        : "TOPIC";
 
   }
 
-  if (topicTitle) {
-
-    topicTitle.textContent =
-      node.label;
-
-  }
-
-  if (topicText) {
-
-    topicText.textContent =
-      descriptions[node.id] ||
-      "More details are coming soon.";
-
-  }
+  topicPanel.classList.add(
+    "visible"
+  );
 
 }
 
 
 /* =========================================================
-   HIGHLIGHT NODE
+   HIGHLIGHT CATEGORY
    ========================================================= */
 
 function highlightNode(id) {
+
+  /*
+   * Remove previous active state.
+   */
 
   document
     .querySelectorAll(".mechanics-node")
     .forEach(element => {
 
-      element.classList.remove("active");
+      element.classList.remove(
+        "active"
+      );
 
     });
-
-
-  const selected =
-    nodesContainer.querySelector(
-      `[data-id="${id}"]`
-    );
-
-  if (selected) {
-
-    selected.classList.add("active");
-
-  }
-
 
   document
     .querySelectorAll(".mechanics-line")
     .forEach(line => {
 
-      const connected =
-        line.dataset.from === id ||
-        line.dataset.to === id;
+      line.classList.remove(
+        "active"
+      );
 
-      line.classList.toggle(
-        "active",
-        connected
+    });
+
+
+  /*
+   * Activate selected parent.
+   */
+
+  const parentElement =
+    document.querySelector(
+      `[data-id="${id}"]`
+    );
+
+  if (parentElement) {
+
+    parentElement.classList.add(
+      "active"
+    );
+
+  }
+
+
+  /*
+   * Activate its connections.
+   *
+   * CSS deliberately keeps active lines
+   * visually identical to normal lines.
+   */
+
+  document
+    .querySelectorAll(
+      `.mechanics-line[data-parent="${id}"]`
+    )
+    .forEach(line => {
+
+      line.classList.add(
+        "active"
       );
 
     });
@@ -607,10 +708,32 @@ function highlightNode(id) {
    INITIALISE
    ========================================================= */
 
-function initialiseMechanics() {
+function initialise() {
+
+  if (
+    !web ||
+    !nodesContainer ||
+    !svg
+  ) {
+    console.warn(
+      "Model Mechanics: map elements not found."
+    );
+    return;
+  }
 
   createNodes();
-  drawConnections();
+
+  requestAnimationFrame(() => {
+
+    drawConnections();
+
+    requestAnimationFrame(() => {
+
+      updateLinePositions();
+
+    });
+
+  });
 
 }
 
@@ -621,7 +744,13 @@ function initialiseMechanics() {
 
 window.addEventListener(
   "resize",
-  updateLinePositions
+  () => {
+
+    requestAnimationFrame(
+      updateLinePositions
+    );
+
+  }
 );
 
 
@@ -629,4 +758,17 @@ window.addEventListener(
    START
    ========================================================= */
 
-initialiseMechanics();
+if (
+  document.readyState === "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initialise
+  );
+
+} else {
+
+  initialise();
+
+}

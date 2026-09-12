@@ -17,7 +17,7 @@ body {
   background: #FFFFFF;
   color: #202124;
 
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial,"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 
@@ -69,6 +69,7 @@ body {
   max-width: 900px;
 
   margin-bottom: 90px;
+  font-family: inherit;
 }
 
 .section-label {
@@ -863,7 +864,7 @@ body {
 body {
   background: #FFFFFF;
   color: #202124;
-  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   line-height: 1.7;
 }
 
@@ -889,7 +890,7 @@ body {
 .question-number,
 .caption,
 .term-takeaway {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter",Arial, Helvetica, sans-serif;
 }
 
 .map-kicker {
@@ -952,7 +953,7 @@ body {
 .map-item span {
   display: block;
   margin-top: 3px;
-  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-family: "Inter","Source Serif 4", Georgia, "Times New Roman", serif;
   font-size: 0.72rem;
   line-height: 1.35;
   color: #999;
@@ -988,7 +989,7 @@ body {
 
 .article-nav a,
 .article-footer-nav a {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter",Arial, Helvetica, sans-serif;
 }
 
 .article-header {
@@ -1026,7 +1027,7 @@ body {
 .article-intro {
   max-width: 700px;
   margin-top: 25px;
-  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-family: "Inter","Source Serif 4", Georgia, "Times New Roman", serif;
   font-size: 1.16rem;
   line-height: 1.65;
   color: #555;
@@ -1096,7 +1097,7 @@ body {
 .question-callout {
   margin: 30px 0 !important;
   padding: 21px 24px 21px 30px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 1.08rem !important;
   line-height: 1.55 !important;
   opacity: 0.9 !important;
@@ -1117,6 +1118,7 @@ body {
 .term-question {
   margin: 20px 0;
   padding: 16px 20px;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 0.95rem;
   line-height: 1.65;
 }
@@ -1349,7 +1351,7 @@ body {
   top: 0;
   width: 29px;
   margin: 0 !important;
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: "Inter",Arial, Helvetica, sans-serif !important;
   font-size: 0.68rem !important;
   line-height: 1.2 !important;
   font-weight: 700;
@@ -1373,7 +1375,7 @@ body {
 
 .map-copy strong {
   display: block;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter",Arial, Helvetica, sans-serif;
   font-size: 0.76rem;
   line-height: 1.25;
   font-weight: 600;
@@ -1383,7 +1385,7 @@ body {
 .map-copy em {
   display: block;
   margin-top: 3px;
-  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-family: "Inter","Source Serif 4", Georgia, "Times New Roman", serif;
   font-size: 0.72rem;
   line-height: 1.35;
   font-style: normal;

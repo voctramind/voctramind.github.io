@@ -10,12 +10,8 @@ body {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #fff;
-  color: #171821;
+  font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-
-
 /* ================================
    PAGE
    ================================ */
@@ -320,13 +316,8 @@ body {
 
 /* ================================
    CHILD / TOPIC NODES
+   NO GLOW
    ================================ */
-
-/*
-   NORMAL:
-   bright family border
-   family-coloured soft glow
-*/
 
 .mechanics-node.topic {
   background: #fff;
@@ -335,13 +326,55 @@ body {
 
   color: #555860;
 
-  box-shadow:
-    0 0 8px var(--family-border),
-    0 0 22px var(--family-border),
-    0 0 40px var(--family-border),
-    0 5px 18px rgba(29, 29, 27, 0.035);
+  box-shadow: none;
+}
+/* ================================
+   PUBLISHED RESEARCH MARKER
+   ================================ */
+
+.mechanics-node.research-topic::after {
+  content: "★";
+
+  position: absolute;
+  top: -10px;
+  right: -10px;
+
+  font-size: 0.8rem;
+  line-height: 1;
+
+  color: #d6a62c;
+
+  text-shadow:
+    0 0 2px #FFFFFF,
+    0 0 5px #FFF4C4,
+    0 0 9px #E8C75A,
+    0 0 16px rgba(218, 178, 62, 0.85),
+    0 0 26px rgba(190, 145, 35, 0.45);
+  pointer-events: none;
+
+  animation: researchStar 2.2s ease-in-out infinite;
 }
 
+
+/* ================================
+   RESEARCH LEGEND STAR
+   SAME CHROME-GOLD AS RESEARCH NODES
+   ================================ */
+
+.research-star {
+  color: #d6a62c;
+
+  text-shadow:
+    0 0 2px #FFFFFF,
+    0 0 5px #FFF4C4,
+    0 0 9px #E8C75A,
+    0 0 16px rgba(218, 178, 62, 0.85),
+    0 0 26px rgba(190, 145, 35, 0.45);
+
+  transform-origin: center;
+
+  animation: researchStar 2.2s ease-in-out infinite;
+}
 
 /* ================================
    CHILD HOVER
@@ -356,11 +389,7 @@ body {
 
   color: #1d1d1b;
 
-  box-shadow:
-    0 0 11px var(--family-border),
-    0 0 28px var(--family-border),
-    0 0 48px var(--family-border),
-    0 6px 22px rgba(29, 29, 27, 0.045);
+  box-shadow: none;
 }
 
 
@@ -375,13 +404,8 @@ body {
 
   color: #1d1d1b;
 
-  box-shadow:
-    0 0 11px var(--family-border),
-    0 0 28px var(--family-border),
-    0 0 48px var(--family-border),
-    0 6px 22px rgba(29, 29, 27, 0.045);
+  box-shadow: none;
 }
-
 
 /* ================================
    FAMILY / CATEGORY PARENTS
@@ -529,43 +553,7 @@ body {
 }
 
 
-/* ================================
-   RESEARCH STAR
-   ================================ */
 
-.research-star {
-  display: inline-block;
-
-  color: #7f86ed;
-
-  font-size: 1em;
-
-  text-shadow:
-    0 0 5px rgba(127, 134, 237, 0.38),
-    0 0 10px rgba(127, 134, 237, 0.18);
-
-  transform-origin: center;
-
-  animation: researchStar 2.2s ease-in-out infinite;
-}
-
-@keyframes researchStar {
-
-  0% {
-    transform: rotate(-25deg) scale(0.85);
-    opacity: 0.65;
-  }
-
-  50% {
-    transform: rotate(25deg) scale(1.35);
-    opacity: 1;
-  }
-
-  100% {
-    transform: rotate(-25deg) scale(0.85);
-    opacity: 0.65;
-  }
-}
 
 
 /* ================================
