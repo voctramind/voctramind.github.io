@@ -1,0 +1,2078 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Attention — VoctraMind</title>
+
+  <link rel="stylesheet" href="attention.css">
+  <script src="attention.js" defer></script>
+
+<style id="tight-equation-spacing">
+/* Tighter equation rhythm */
+.equation {
+  margin: 18px 0;
+  padding: 8px 12px;
+}
+
+.annotated-equation {
+  margin: 18px 0;
+  padding: 8px 12px;
+}
+
+.small-equation {
+  margin: 12px 0;
+}
+
+.large-equation {
+  margin: 28px 0;
+  padding: 16px 10px;
+}
+
+/* Remove MathJax's own display margins so CSS controls the spacing. */
+.equation mjx-container[display="true"],
+.annotated-equation mjx-container[display="true"],
+.large-equation mjx-container[display="true"] {
+  margin: 0 !important;
+}
+
+@media (max-width: 520px) {
+  .equation,
+  .annotated-equation {
+    margin: 14px 0;
+    padding: 6px 8px;
+  }
+
+  .large-equation {
+    margin: 20px 0;
+    padding: 10px 5px;
+  }
+}
+</style>
+
+</head>
+
+<body>
+<!-- =====================================================
+     SIDE PROGRESSION MAP
+     ===================================================== -->
+<aside class="lora-map" aria-label="Attention progression">
+
+  <div class="map-kicker">MODEL MECHANICS</div>
+  <h2 class="map-title">Attention</h2>
+
+  <div class="timeline">
+
+    <button class="map-item" type="button" data-target-index="1">
+      <span class="map-number">01</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Why attention?</strong>
+        <em>Context-aware representations</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="2">
+      <span class="map-number">02</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Every token</strong>
+        <em>Who should I look at?</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="3">
+      <span class="map-number">03</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Query</strong>
+        <em>What am I looking for?</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="4">
+      <span class="map-number">04</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Key</strong>
+        <em>What do I contain?</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="5">
+      <span class="map-number">05</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Value</strong>
+        <em>What can I provide?</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="6">
+      <span class="map-number">06</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>QKᵀ</strong>
+        <em>Measuring relevance</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="7">
+      <span class="map-number">07</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Scaled attention</strong>
+        <em>Scores → weights → values</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="8">
+      <span class="map-number">08</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Multi-head</strong>
+        <em>Multiple relationships</em>
+      </span>
+    </button>
+
+
+    <button class="map-item" type="button" data-target-index="9">
+      <span class="map-number">09</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>KV caching</strong>
+        <em>Saving attention from amnesia</em>
+      </span>
+    </button>
+
+
+    <button class="map-item" type="button" data-target-index="10">
+      <span class="map-number">10</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>My reasearch 🧐 </strong>
+        <em>Reducing params & compute</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="11">
+      <span class="map-number">11</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Self, Cross & Causal Attention</strong>
+        <em>Putting it all together</em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="12">
+      <span class="map-number">12</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Local & Sparse Attention</strong>
+        <em></em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="13">
+      <span class="map-number">13</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Linear Attention</strong>
+        <em></em>
+      </span>
+    </button>
+
+    <button class="map-item" type="button" data-target-index="14">
+      <span class="map-number">14</span>
+      <span class="map-dot"></span>
+      <span class="map-copy">
+        <strong>Flash Attention</strong>
+        <em></em>
+      </span>
+    </button>
+
+
+
+  </div>
+</aside>
+  <main class="article-page">
+
+    <!-- =====================================================
+         NAVIGATION
+         ===================================================== -->
+
+    <nav class="article-nav">
+      <a href="mechanics.html">← MODEL MECHANICS</a>
+    </nav>
+
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <header class="article-header">
+
+      <div class="section-label">
+        MODEL MECHANICS / TRANSFORMERS
+      </div>
+
+      <h1>
+        What is attention<br>
+        <span>really looking for?</span>
+      </h1>
+
+      <p class="article-intro">
+        From Q, K, V to making attention a little Flash-y.
+      </p>
+
+    </header>
+
+<!-- =====================================================
+         OPENING
+         ===================================================== -->
+
+    <section class="article-section">
+      
+      <div class="question-number">01</div>
+
+      <h2>Why do we need attention?</h2>
+
+      <p>
+        A neural network does not only need to identify individual tokens.
+        It also needs to build <strong>representations that capture how
+        those tokens relate to one another.</strong>
+      </p>
+
+      <p>
+        Consider:
+      </p>
+
+      <div class="simple-statement">
+        Delhi — India
+        <br>
+        Paris — France
+      </div>
+
+      <p>
+        The representation of <strong>Delhi</strong> can become more
+        informative when it incorporates information about
+        <strong>India</strong>. Similarly, the representation of
+        <strong>Paris</strong> can benefit from information about
+        <strong>France</strong>.
+      </p>
+
+      <p>
+        The same idea appears naturally in language:
+      </p>
+
+      <div class="simple-statement">
+        The bank is near the river.
+      </div>
+
+      <p>
+        The word <strong>bank</strong> by itself is ambiguous.
+        The surrounding context helps determine which meaning is relevant.
+      </p>
+
+      <p>
+        So we would like a representation of each token that is not
+        completely isolated, but is <strong>enriched by relevant
+        information from other tokens.</strong>
+      </p>
+
+      <p class="question-callout">
+        How can we build such a context-aware representation?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 01
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">02</div>
+
+      <h2>What if every token could look at every other token?</h2>
+
+      <p>
+        Imagine that every token is allowed to examine the representations
+        of all the other tokens.
+      </p>
+
+      <p>
+        For a sequence of \(n\) tokens, we could compute a relationship
+        between every pair of tokens.
+      </p>
+
+      <div class="equation">
+
+        \[
+          n \times n
+        \]
+
+      </div>
+
+      <p>
+        Each entry tells us something about how much one token should
+        interact with another.
+      </p>
+
+      <p>
+        But there is an important question:
+      </p>
+
+      <p class="question-callout">
+        Which other tokens contain information that is actually useful
+        for building my representation?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FIGURE
+         ===================================================== -->
+
+    <section class="article-figure">
+
+      <div class="figure-placeholder">
+        <span>FIGURE</span>
+        <p>
+          Every token attending to every other token
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 02
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">03</div>
+
+      <h2>What is the token looking for?</h2>
+
+      <p>
+        Suppose one token is trying to build a richer representation.
+        It can look at the representations of other tokens, but first
+        it needs some way to express what information would be useful.
+      </p>
+
+      <div class="simple-statement">
+        What kind of information am I looking for?
+      </div>
+
+      <p>
+        This is the role of the <strong>query</strong>.
+      </p>
+
+      <p>
+        A query represents the information need of the current position.
+        It is what that position uses to <strong>search the other
+        positions</strong>.
+      </p>
+
+      <p>
+        For example, the representation of <strong>Delhi</strong> may
+        benefit from information about the country associated with it.
+        Its query therefore provides a way to look for that kind of
+        information.
+      </p>
+
+      <p class="question-callout">
+        But what does each other token offer for the query to search?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 03
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">04</div>
+
+      <h2>What does each token contain?</h2>
+
+      <p>
+        Every position needs a way to describe the kind of information
+        it contains so that other queries can determine whether it is
+        relevant.
+      </p>
+
+      <div class="simple-statement">
+        What kind of information do I contain?
+      </div>
+
+      <p>
+        This is the role of the <strong>key</strong>.
+      </p>
+
+      <p>
+        A key describes the characteristics of the information available
+        at that position. Queries can then be compared against keys to
+        determine how relevant one position is to another.
+      </p>
+
+      <p>
+        In our example, the query associated with
+        <strong>Delhi</strong> can be compared with the keys of other
+        tokens. A strong match with the key associated with
+        <strong>India</strong> indicates that India contains information
+        relevant to Delhi's current information need.
+      </p>
+
+      <p>
+        So we now have two distinct roles:
+      </p>
+
+      <div class="annotated-equation">
+
+        \[
+          \underbrace{Q}_{\text{what am I looking for?}}
+          \qquad
+          \underbrace{K}_{\text{what kind of information do I contain?}}
+        \]
+
+      </div>
+
+      <p class="question-callout">
+        Once we know which positions are relevant, what information
+        should we actually retrieve from them?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 04
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">05</div>
+
+      <h2>What information should we retrieve?</h2>
+
+      <p>
+        Knowing that another token is relevant is only half the problem.
+        We also need the information that should actually be gathered
+        from that token.
+      </p>
+
+      <p>
+        That is the role of the <strong>value</strong>.
+      </p>
+
+      <div class="simple-statement">
+        What information can I provide?
+      </div>
+
+      <p>
+        The value carries the information that can actually be
+        <strong>retrieved and incorporated into the new representation</strong>.
+      </p>
+
+      <div class="annotated-equation">
+
+        \[
+          \underbrace{Q}_{\text{what am I looking for?}}
+          \qquad
+          \underbrace{K}_{\text{what kind of information do I contain?}}
+          \qquad
+          \underbrace{V}_{\text{what information can I provide?}}
+        \]
+
+      </div>
+
+      <p>
+        This gives attention a clean separation of responsibilities:
+      </p>
+
+      <p>
+        <strong>Query and Key</strong> determine where to look.
+        <br>
+        <strong>Value</strong> determines what information is gathered.
+      </p>
+
+      <p>
+        For Delhi, the query can determine that the information associated
+        with India is highly relevant. The corresponding value is then
+        what Delhi actually retrieves and incorporates into its new
+        representation.
+      </p>
+
+      <p>
+        The new representation is therefore not simply the original
+        representation. It is a representation <strong>enriched with
+        information gathered from relevant positions.</strong>
+      </p>
+
+      <p class="question-callout">
+        We know what the Query, Key, and Value do. But how do we measure
+        whether a Query and a Key are relevant to each other?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 05
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">06</div>
+
+      <h2>Why \(QK^T\)?</h2>
+
+      <p>
+        A natural way to compare two vectors is through their dot
+        product.
+      </p>
+
+      <div class="equation">
+
+        \[
+          q_i^T k_j
+        \]
+
+      </div>
+
+      <p>
+        If the query and key point in similar directions, the dot
+        product is large. If they are poorly aligned, it is smaller.
+      </p>
+
+      <p>
+        Now do this for every query against every key.
+      </p>
+
+      <div class="equation">
+
+        \[
+          QK^T
+        \]
+
+      </div>
+
+      <p>
+        This gives us a matrix of pairwise compatibility scores.
+      </p>
+
+      <p class="question-callout">
+        So \(QK^T\) tells us who is relevant to whom.
+        But what information should we actually retrieve?
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+     QUESTION 06 — FROM SCORES TO INFORMATION
+     ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">07</div>
+
+      <h2>How do relevance scores become a new representation?</h2>
+
+      <p>
+        We now have \(QK^T\), a matrix of pairwise
+        <strong>compatibility scores</strong>.
+      </p>
+
+      <p>
+        But these scores are not yet attention weights. We need to
+        transform them into a stable distribution over the positions
+        that each query can attend to.
+      </p>
+
+      <div class="equation">
+        \[
+          S = QK^T
+        \]
+      </div>
+
+      <p>
+        Each entry is
+        \[
+          S_{ij}=q_i^T k_j.
+        \]
+        A larger value means that query \(i\) and key \(j\) are more
+        compatible.
+      </p>
+
+      <p class="question-callout">
+        But why do we divide by \(\sqrt{d_k}\) before applying softmax?
+      </p>
+
+      <h3>Why does \(d_k\) matter?</h3>
+
+      <p>
+        Look at one query-key dot product:
+      </p>
+
+      <div class="equation">
+        \[
+          q^T k
+          =
+          \sum_{\ell=1}^{d_k} q_\ell k_\ell
+        \]
+      </div>
+
+      <p>
+        Assume, for intuition, that the components of \(q\) and \(k\)
+        are i.i.d., independent of one another, have zero mean, and
+        each has variance \(1\).
+      </p>
+
+      <p>
+        First consider one product:
+        \[
+          x_\ell=q_\ell k_\ell.
+        \]
+        Because \(q_\ell\) and \(k_\ell\) are independent and
+        zero-mean,
+      </p>
+
+      <div class="equation">
+        \[
+          E[x_\ell]
+          =
+          E[q_\ell k_\ell]
+          =
+          E[q_\ell]E[k_\ell]
+          =
+          0
+        \]
+      </div>
+
+      <p>
+        Its variance is
+      </p>
+
+      <div class="equation">
+        \[
+          \begin{aligned}
+          \operatorname{Var}(x_\ell)
+          &= E[x_\ell^2] - E[x_\ell]^2 \\
+          &= E[q_\ell^2 k_\ell^2] \\
+          &= E[q_\ell^2]E[k_\ell^2] \\
+          &= 1.
+          \end{aligned}
+        \]
+      </div>
+
+      <p>
+        So each individual product contributes roughly
+        <strong>one unit of variance</strong>.
+        The important part comes when we add \(d_k\) of them.
+      </p>
+
+      <div class="equation">
+        \[
+          \operatorname{Var}(q^T k)
+          =
+          \operatorname{Var}
+          \left(
+            \sum_{\ell=1}^{d_k} q_\ell k_\ell
+          \right)
+          =
+          \sum_{\ell=1}^{d_k}
+          \operatorname{Var}(q_\ell k_\ell)
+          =
+          d_k
+        \]
+      </div>
+
+      <p>
+        Therefore the <strong>standard deviation</strong> of the dot
+        product grows as
+      </p>
+
+      <div class="equation">
+        \[
+          \operatorname{Std}(q^T k)=\sqrt{d_k}.
+        \]
+      </div>
+
+      <p class="question-callout">
+        And this is where the \(\sqrt{d_k}\) comes from.
+      </p>
+
+      <p>
+        The dot product is a <strong>sum of \(d_k\) independent
+        products</strong>. The variance of that sum grows with \(d_k\),
+        so its standard deviation grows with \(\sqrt{d_k}\).
+      </p>
+
+      <h3>Why not divide by \(d_k\)?</h3>
+
+      <p>
+        Because \(d_k\) describes how the <strong>variance</strong>
+        grows, not how the <strong>standard deviation</strong> grows.
+        We want to normalize the scale of the scores, so we divide by
+        their standard deviation.
+      </p>
+
+      <div class="equation">
+        \[
+          \frac{q^T k}{\sqrt{d_k}}
+        \]
+      </div>
+
+      <p>
+        Under the assumptions above,
+      </p>
+
+      <div class="equation">
+        \[
+          \operatorname{Var}
+          \left(
+            \frac{q^T k}{\sqrt{d_k}}
+          \right)
+          =
+          \frac{d_k}{d_k}
+          =
+          1.
+        \]
+      </div>
+
+      <p>
+        If we divided by \(d_k\) instead, the variance would become
+      </p>
+
+      <div class="equation">
+        \[
+          \operatorname{Var}
+          \left(
+            \frac{q^T k}{d_k}
+          \right)
+          =
+          \frac{d_k}{d_k^2}
+          =
+          \frac{1}{d_k},
+        \]
+      </div>
+
+      <p>
+        which would make the scores increasingly small as the key
+        dimension grows.
+      </p>
+
+      <p>
+        So the scaled attention scores are
+      </p>
+
+      <div class="equation large-equation">
+        \[
+          \boxed{
+          S_{\text{scaled}}
+          =
+          \frac{QK^T}{\sqrt{d_k}}
+          }
+        \]
+      </div>
+
+      <h3>Now softmax turns scores into weights</h3>
+
+      <p>
+        Once the scores are kept at a sensible scale, softmax converts
+        each row into a probability distribution over the keys:
+      </p>
+
+      <div class="equation">
+        \[
+          A =
+          \operatorname{softmax}
+          \left(
+            \frac{QK^T}{\sqrt{d_k}}
+          \right)
+        \]
+      </div>
+
+      <p>
+        For every query \(i\),
+      </p>
+
+      <div class="equation">
+        \[
+          A_{ij}\ge 0,
+          \qquad
+          \sum_j A_{ij}=1.
+        \]
+      </div>
+
+      <p>
+        These weights are <strong>not necessarily normally
+        distributed</strong>. Softmax simply produces a probability
+        distribution: it tells us how the query distributes its
+        attention across the available positions.
+      </p>
+
+      <h3>And finally, retrieve the information</h3>
+
+      <p>
+        The weights tell us <strong>how much</strong> information to
+        take from each position. The values tell us
+        <strong>what information</strong> to take.
+      </p>
+
+      <div class="equation">
+        \[
+          Z=AV
+        \]
+      </div>
+
+      <p>
+        In other words, each output is a weighted average of the value
+        vectors:
+      </p>
+
+      <div class="equation">
+        \[
+          z_i
+          =
+          \sum_j A_{ij}v_j.
+        \]
+      </div>
+
+      <p>
+        So the complete mechanism is:
+      </p>
+
+      <div class="equation large-equation">
+        \[
+          \boxed{
+          QK^T
+          \;\longrightarrow\;
+          \frac{QK^T}{\sqrt{d_k}}
+          \;\longrightarrow\;
+          \operatorname{softmax}
+          \;\longrightarrow\;
+          A
+          \;\longrightarrow\;
+          AV
+          }
+        \]
+      </div>
+
+      <p class="question-callout">
+        <strong>Score → scale → normalize → retrieve → aggregate.</strong>
+      </p>
+
+      <div class="mechanism-list">
+
+        <div>
+          <strong>\(QK^T\)</strong>
+          <span>How relevant is each position?</span>
+        </div>
+
+        <div>
+          <strong>\(\sqrt{d_k}\)</strong>
+          <span>Why does the score scale need to be controlled?</span>
+        </div>
+
+        <div>
+          <strong>softmax</strong>
+          <span>How should relevance become weights?</span>
+        </div>
+
+        <div>
+          <strong>\(V\)</strong>
+          <span>What information should actually be retrieved?</span>
+        </div>
+
+        <div>
+          <strong>\(AV\)</strong>
+          <span>How do the retrieved values form the new representation?</span>
+        </div>
+
+      </div>
+
+    </section>
+<section class="article-figure">
+
+  <figure>
+    <img
+      src="images/scaled_dot_pdt_attn.png"
+    >
+
+    <figcaption>
+      From pairwise attention scores to a weighted combination of value vectors.
+    </figcaption>
+  </figure>
+
+</section>
+
+
+<!-- =====================================================
+         QUESTION 07 — MULTI-HEAD ATTENTION
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">08</div>
+
+      <h2>
+        Why multiple heads?
+      </h2>
+
+      <p>
+        A sentence can contain many kinds of relationships.
+      </p>
+
+      <p>
+        One relationship might connect a pronoun to its antecedent.
+        Another might capture a syntactic relationship. Another might
+        capture a semantic association.
+      </p>
+
+      <p>
+        Instead of forcing one attention mechanism to capture all of
+        these relationships, the Transformer uses multiple attention
+        heads.
+      </p>
+
+      <div class="equation">
+
+        \[
+        \operatorname{head}_i
+        =
+        \operatorname{Attention}
+        (Q_i,K_i,V_i)
+        \]
+
+      </div>
+
+      <p>
+        The outputs of the heads are then concatenated and projected.
+      </p>
+
+      <div class="equation">
+
+        \[
+        \operatorname{MultiHead}(Q,K,V)
+        =
+        \operatorname{Concat}
+        (\operatorname{head}_1,\ldots,\operatorname{head}_h)W^O
+        \]
+
+      </div>
+
+      <p class="question-callout">
+        But once multi-head attention worked, a new set of questions
+        appeared.
+      </p>
+
+      <p>
+        Do all heads really need their own keys and values?
+        Can we reduce the memory required during inference?
+        Do every pair of tokens really need to interact?
+      </p>
+
+    </section>
+
+
+
+
+    <!-- =====================================================
+         QUESTION 08 — MQA / GQA / MLA
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">09</div>
+
+      <h2>
+        KV Caching &mdash; Saving Attention from Amnesia
+      </h2>
+
+ <p>
+    In standard multi-head attention, each head has its own
+    query, key and value projections.
+  </p>
+
+  <p>
+    During autoregressive generation, every new token needs to attend
+    to tokens that came before it. Without caching, the model would
+    have to recompute the keys and values of those previous tokens
+    again and again.
+  </p>
+
+  <p>
+    The KV cache gives attention a memory of the past.
+  </p>
+
+  <p>
+    Instead of forgetting and reconstructing the history at every step,
+    the model stores the keys and values it has already computed and
+    reuses them for future tokens.
+  </p>
+
+  <p>
+    But there is a catch: <strong>the longer the context, the more memory
+    that attention has to carry.</strong>
+  </p>
+
+  <p class="question-callout">
+    So the next question is not simply:
+  </p>
+
+  <p>
+    <strong>Can attention remember the past?</strong>
+  </p>
+
+  <p class="question-callout">
+    It is:
+  </p>
+
+  <p>
+    <strong>How can attention remember more of the past without running
+    out of memory?</strong>
+  </p>
+
+      <p class="question-callout">
+        What if we kept multiple query heads, but shared the keys
+        and values?
+      </p>
+
+
+      <h3>Multi-Query Attention</h3>
+
+      <p>
+        Multi-Query Attention (MQA) uses multiple query heads but
+        shares a single set of keys and values across those heads.
+      </p>
+
+      <p>
+        This reduces the KV-cache size, making autoregressive
+        inference more memory efficient.
+      </p>
+
+
+      <h3>Grouped-Query Attention</h3>
+
+      <p>
+        MQA is an extreme form of sharing. Grouped-Query Attention
+        (GQA) sits between MHA and MQA: several query heads share
+        one key-value head.
+      </p>
+
+      <p>
+        This provides a trade-off between the richer per-head
+        key/value representations of MHA and the smaller KV cache
+        of MQA.
+      </p>
+
+          <section class="article-figure">
+
+  <figure>
+    <img
+      src="images/MQA_GQA.png"
+    >
+
+    <figcaption>
+      From pairwise attention scores to a weighted combination of value vectors.
+    </figcaption>
+  </figure>
+
+</section>
+
+
+      <p class="question-callout">
+        Can we compress the key-value information even further
+        without simply sharing the same representation everywhere?
+      </p>
+
+
+      <h3>Multi-head Latent Attention</h3>
+
+      <p>
+        Multi-head Latent Attention (MLA) takes a different approach:
+        instead of sharing full-dimensional K/V states, it asks whether
+        those states need to be cached at all.
+      </p>
+
+      <p>
+        MLA caches a lower-dimensional KV latent, while using a separate
+        query-latent pathway and a decoupled RoPE-aware component.
+      </p>
+
+      <div class="question-callout">
+        So what exactly is compressed — and how can attention still compute
+        the same kind of pairwise scores?
+      </div>
+
+      <h4>1. Compress the key-value information</h4>
+
+      <p>
+        MLA first maps the hidden states \(X\) to a compact KV latent:
+      </p>
+
+      <div class="equation">
+        \[
+          C^{KV} = XW^{DKV}
+        \]
+      </div>
+
+      <p>
+        Here \(d_c\) is much smaller than the full KV dimension. This
+        latent is the main source of the KV-cache reduction.
+      </p>
+
+      <div class="equation">
+        \[
+          C^{KV} \in \mathbb{R}^{T\times d_c},
+          \qquad d_c \ll h d_h
+        \]
+      </div>
+
+      <p>
+        The latent can be mapped to the content key and value:
+      </p>
+
+      <div class="equation">
+        \[
+          K^C = C^{KV}W^{UK},
+          \qquad
+          V = C^{KV}W^{UV}.
+        \]
+      </div>
+
+      <p>
+        At inference, we cache \(C^{KV}\) rather than full K/V states,
+        along with the small RoPE-aware key component discussed below.
+      </p>
+
+      <h4>2. Q is also given a latent pathway</h4>
+
+      <p>
+        MLA also introduces a learned query latent:
+      </p>
+
+      <div class="equation">
+        \[
+          C^Q = XW^{DQ}.
+        \]
+      </div>
+
+      <p>
+        The latent is then mapped into the content-query space:
+      </p>
+
+      <div class="equation">
+        \[
+          Q^C = C^QW^{UQ}.
+        \]
+      </div>
+
+      <p>
+        The query latent is computed for the current step; the KV latent is
+        the representation that must persist across decoding steps.
+      </p>
+
+      <h4>3. Why not simply reconstruct K?</h4>
+
+      <p>
+        We could reconstruct \(K^C\), but that would waste the benefit of
+        caching a compact latent. Instead, MLA uses matrix associativity:
+      </p>
+
+      <div class="equation">
+        \[
+          Q^C(K^C)^T
+          =
+          C^QW^{UQ}(W^{UK})^T(C^{KV})^T.
+        \]
+      </div>
+
+      <p>
+        The projections can be rearranged so the current query is compared
+        directly with cached \(C^{KV}\), without materializing every full key.
+      </p>
+
+      <div class="equation">
+        \[
+          S_C
+          =
+          \underbrace{C^QW^{UQ}(W^{UK})^T}_{\text{query-side transform}}
+          (C^{KV})^T.
+        \]
+      </div>
+
+      <p>
+        The key trick is: <strong>cache the latent, then rearrange the
+        projections</strong> instead of reconstructing full keys.
+      </p>
+
+      <h4>4. But what about RoPE?</h4>
+
+      <p>
+        MLA also uses a <strong>decoupled RoPE-aware pathway</strong>.
+        These vectors are learned from \(X\); RoPE then makes them
+        position-aware.
+      </p>
+
+      <div class="equation">
+        \[
+          Q^R = \operatorname{RoPE}(XW^{QR}),
+          \qquad
+          K^R = \operatorname{RoPE}(XW^{KR}).
+        \]
+      </div>
+
+      <p>
+        Thus \(K^R\) is <strong>not pure position</strong>: it is a learned
+        key representation with RoPE applied. Its small cached component is
+        stored alongside \(C^{KV}\).
+      </p>
+
+      <p>
+        The attention score therefore has two parts:
+      </p>
+
+      <div class="equation">
+        \[
+          S
+          =
+          \underbrace{S_C}_{\text{latent content interaction}}
+          +
+          \underbrace{Q^R(K^R)^T}_{\text{RoPE-aware interaction}}.
+        \]
+      </div>
+
+      <p>
+        This separation preserves the factorization used by the content
+        score while still providing position-aware interactions.
+      </p>
+
+      <h4>5. What is actually saved?</h4>
+
+      <p>
+        MHA caches full K/V states for every token and head. MLA instead
+        caches a compact content latent plus the small RoPE-aware key.
+      </p>
+
+      <div class="equation">
+        \[
+          \boxed{\text{MLA reduces KV-cache memory by changing what is cached.}}
+        \]
+      </div>
+
+      <p>
+        Notice what MLA does <strong>not</strong> do: it does not make the
+        \(T\times T\) attention matrix sparse, and it does not remove the
+        need for every query to interact with the relevant previous tokens.
+        The saving comes from the representation stored for those previous
+        tokens.
+      </p>
+
+      <div class="question-callout">
+        MQA and GQA ask: <em>How many KV heads should we cache?</em><br>
+        MLA asks a deeper question: <em>Do we need to cache full-dimensional
+        K and V at all?</em>
+      </div>
+
+      <p>
+        MLA is therefore more than “GQA with fewer dimensions”: it changes
+        <strong>what is stored in the KV cache</strong>.
+      </p>
+
+
+<!-- =====================================================
+     MY RESEARCH — SUBSET THEN TRANSFORM
+     ===================================================== -->
+
+<section class="article-section">
+
+      <div class="question-number">10</div>
+
+      <h2 class="research-title">
+  <span class="research-tag">MY RESEARCH</span>
+    Subset-First Attention
+</h2>
+
+<div class="research-card">
+
+
+  <h3>Around 2023-2024, I asked a different question. How to reduce attention parameters ?</h3>
+
+  <p>
+    If a down-projection can preserve the information needed by
+    attention, does the representation necessarily have to be
+    transformed before we decide which dimensions are useful?
+  </p>
+
+  <div class="question-callout">
+    If down-projection survives, will subsetting survive?
+  </div>
+
+  <p>
+    My idea was to reverse the order: <strong>subset first, then
+    transform.</strong>
+  </p>
+
+  <p>
+    Instead of applying the Q and K transformations to the complete
+    D-dimensional representation, I first select a subset of the
+    dimensions and perform the transformations only on that subset.
+    V, however, remains in the original D-dimensional space.
+  </p>
+
+  <div class="equation">
+    \[
+      X \in \mathbb{R}^{T\times D}
+      \quad\longrightarrow\quad
+      X_S \in \mathbb{R}^{T\times \alpha D}
+    \]
+  </div>
+
+  <div class="equation">
+    \[
+      Q = X_S W_Q',
+      \qquad
+      K = X_S W_K'
+    \]
+  </div>
+
+  <div class="equation">
+    \[
+      V = X W_V
+    \]
+  </div>
+
+  <p>
+    The important asymmetry is deliberate: the reduced representation
+    is used to determine <em>where attention should go</em>, while the
+    full-dimensional V retains the information that is actually
+    aggregated. I explored SFA in the context of automatic speech recognition (ASR).
+  </p>
+
+  <a href="https://ieeexplore.ieee.org/document/10832331"
+   target="_blank"
+   rel="noopener">
+  Read my paper →
+</a>
+
+</div>
+
+<!-- =====================================================
+     PARAMETER SAVINGS
+     ===================================================== -->
+
+
+
+  <h4>1.What do I actually save?</h4>
+
+  <p>
+    Suppose the model dimension is D and I keep a fraction
+    \(\alpha\) of the input dimensions for Q and K.
+  </p>
+
+  <p>
+    In standard attention, the Q and K projection matrices are:
+  </p>
+
+  <div class="equation">
+    \[
+      W_Q, W_K \in \mathbb{R}^{D\times D}
+    \]
+  </div>
+
+  <p>
+    Together, they contain:
+  </p>
+
+  <div class="equation">
+    \[
+      2D^2
+    \]
+  </div>
+
+  <p>
+    parameters.
+  </p>
+
+  <p>
+    After subsetting, the input to each Q/K transformation has only
+    \(\alpha D\) dimensions:
+  </p>
+
+  <div class="equation">
+    \[
+      W_Q', W_K'
+      \in
+      \mathbb{R}^{\alpha D\times D}
+    \]
+  </div>
+
+  <p>
+    Therefore the Q/K parameters become:
+  </p>
+
+  <div class="equation">
+    \[
+      2\alpha D^2
+    \]
+  </div>
+
+  <p>
+    The parameter reduction in Q and K is therefore:
+  </p>
+
+  <div class="equation">
+    \[
+      1-\alpha
+    \]
+  </div>
+
+  <p>
+    So if I keep only 50% of the dimensions:
+  </p>
+
+  <div class="equation">
+    \[
+      \alpha = 0.5
+      \quad\Rightarrow\quad
+      \boxed{50\%\text{ reduction in Q/K projection parameters}}
+    \]
+  </div>
+
+
+
+<!-- =====================================================
+     TOTAL QKV SAVINGS
+     ===================================================== -->
+
+
+
+  <h4>2.What happens to the whole attention block?</h4>
+
+  <p>
+    V is intentionally left untouched:
+  </p>
+
+  <div class="equation">
+    \[
+      W_V\in\mathbb{R}^{D\times D}
+    \]
+  </div>
+
+  <p>
+    Standard QKV projections therefore contain:
+  </p>
+
+  <div class="equation">
+    \[
+      D^2+D^2+D^2 = 3D^2
+    \]
+  </div>
+
+  <p>
+    With subset-then-transform Q and K, they contain:
+  </p>
+
+  <div class="equation">
+    \[
+      \alpha D^2+\alpha D^2+D^2
+      =
+      (1+2\alpha)D^2
+    \]
+  </div>
+
+  <p>
+    The fractional reduction in QKV projection parameters is therefore:
+  </p>
+
+  <div class="equation">
+    \[
+      \frac{3-(1+2\alpha)}{3}
+      =
+      \frac{2(1-\alpha)}{3}
+    \]
+  </div>
+
+  <p>
+    At 50% subsetting:
+  </p>
+
+  <div class="equation">
+    \[
+      \alpha=0.5
+      \quad\Rightarrow\quad
+      \boxed{33.3\%\text{ reduction in QKV projection parameters}}
+    \]
+  </div>
+
+  <div class="question-callout">
+    Half the dimensions for Q and K does not mean half the entire
+    QKV parameter count — because V is deliberately kept full-dimensional.
+  </div>
+
+
+
+<!-- =====================================================
+     COMPUTE
+     ===================================================== -->
+
+
+  <div class="question-number">AND THE COMPUTE?</div>
+
+  <h4>3.Does the saving show up at inference too?</h4>
+
+  <p>
+    Yes, but the exact saving depends on which computation we count.
+    For the Q/K transformations themselves, reducing their input
+    dimensionality from D to \(\alpha D\) reduces their dominant
+    matrix-multiplication cost by the same factor.
+  </p>
+
+  <div class="equation">
+    \[
+      \text{Q/K projection cost}
+      \propto
+      2T D^2
+    \]
+  </div>
+
+  <p>
+    becomes approximately:
+  </p>
+
+  <div class="equation">
+    \[
+      2\alpha T D^2
+    \]
+  </div>
+
+  <p>
+    At \(\alpha=0.5\), that part of the computation is therefore
+    reduced by 50%.
+  </p>
+
+  <p>
+    There is also a saving in the QK attention-score computation if
+    the resulting Q and K representations are themselves reduced.
+    If, instead, the subset is only used as the input to a full-D
+    transformation, that particular saving does not automatically
+    follow.
+  </p>
+
+  <div class="question-callout">
+    So the interesting question is not simply “how much can I
+    compress?” It is: <strong>where can I reduce computation without
+    throwing away the information that attention ultimately needs?</strong>
+  </div>
+
+  <section>
+
+    <!-- =====================================================
+         QUESTION 09 — SELF / CROSS / CAUSAL
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">11</div>
+
+      <h2>
+        Attention Types — Based on What Attends to What
+      </h2>
+
+      <p>
+        The attention equation does not require the queries, keys and
+        values to come from the same sequence.
+      </p>
+
+      <p>
+        That gives us several important configurations.
+      </p>
+
+
+      <h3>Self-Attention</h3>
+
+      <p>
+        Queries, keys and values all come from the same sequence.
+        Each token can therefore build a representation using
+        information from other tokens in that sequence.
+      </p>
+
+
+      <h3>Cross-Attention</h3>
+
+      <p>
+        Queries come from one sequence while keys and values come
+        from another.
+      </p>
+
+      <p>
+        This is useful when one representation needs to retrieve
+        information from another — for example, in encoder-decoder
+        architectures.
+      </p>
+
+
+      <h3>Causal Attention</h3>
+
+      <p>
+        For autoregressive generation, a token must not see future
+        tokens.
+      </p>
+
+      <p>
+        We therefore apply a causal mask so that position \(i\)
+        can only attend to positions at or before \(i\).
+      </p>
+
+      <div class="equation">
+
+        \[
+        A_{ij}=0
+        \qquad
+        \text{for } j>i
+        \]
+
+      </div>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         QUESTION 10 — SPARSE / LINEAR
+         ===================================================== -->
+
+    <section class="article-section">
+
+      <div class="question-number">12</div>
+
+      <h2>
+        Do we really need every token to attend to every other token?
+      </h2>
+
+      <p>
+        Standard self-attention creates an interaction between every
+        pair of tokens.
+      </p>
+
+      <div class="equation">
+
+        \[
+        O(n^2)
+        \]
+
+      </div>
+
+      <p>
+        As the sequence becomes longer, this quadratic scaling
+        becomes increasingly expensive.
+      </p>
+
+      <p class="question-callout">
+        What if we only allowed selected tokens to interact?
+      </p>
+
+<h3>Local and Sparse Attention</h3>
+
+<p>
+  Sparse attention restricts which query-key interactions are computed.
+  A token might attend only to nearby tokens, selected positions,
+  blocks, or other structured subsets.
+</p>
+
+<p>
+  For example, with a local window of size \(w\), each query interacts
+  with only \(w\) keys instead of all \(T\) keys. The number of attention
+  scores therefore falls from \(T^2\) to roughly \(Tw\).
+</p>
+
+<p>
+  But there is an important implementation detail:
+  <strong>masking alone does not reduce computation.</strong>
+  If the model first computes the full \(QK^T\) matrix and then masks
+  unwanted entries, the quadratic computation has already been performed.
+</p>
+
+<p>
+  To obtain an actual computational benefit, the implementation must
+  exploit the sparsity directly&mdash;for example, through
+  <strong>local or block-sparse kernels</strong> that compute only the
+  permitted query-key interactions.
+</p>
+
+<p>
+  Thus, sparse attention reduces computation <em>in principle</em>,
+  but realizing that reduction efficiently depends on hardware-aware
+  sparse kernels. Irregular sparsity can also introduce overhead, so
+  the theoretical reduction does not necessarily translate into the
+  same proportional wall-clock speedup.
+</p>
+<h3>Linear Attention</h3>
+
+<p>
+  Another direction is to avoid the quadratic query-key interaction
+  altogether. The key idea is to reformulate attention so that the
+  sequence dimension \(T\) does not appear in an intermediate
+  \(T\times T\) attention matrix.
+</p>
+
+<p>
+  Consider attention without the softmax for a moment:
+</p>
+
+<div class="equation">
+  \[
+  \operatorname{Attention}(Q,K,V)=(QK^T)V.
+  \]
+</div>
+
+<p>
+  Here,
+  \(Q,K\in\mathbb{R}^{T\times d}\) and
+  \(V\in\mathbb{R}^{T\times d_v}\).
+  The first multiplication produces
+  \(QK^T\in\mathbb{R}^{T\times T}\).
+  This is where the quadratic dependence on sequence length comes from.
+</p>
+
+<p class="question-callout">
+  But matrix multiplication is associative. So do we really need to
+  construct \(QK^T\) first?
+</p>
+
+<p>
+  We can instead change the order of multiplication:
+</p>
+
+<div class="equation">
+  \[
+  (QK^T)V
+  =
+  Q(K^TV).
+  \]
+</div>
+
+<p>
+  Now \(K^TV\) has shape
+  \(\mathbb{R}^{d\times d_v}\), independent of sequence length.
+  We first aggregate information from all keys and values into this
+  smaller representation, and only then multiply by \(Q\).
+</p>
+
+<div class="equation">
+  \[
+  K^TV:
+  \quad
+  (T\times d)^T(T\times d_v)
+  \rightarrow
+  d\times d_v.
+  \]
+</div>
+
+<p>
+  The second multiplication is then
+</p>
+
+<div class="equation">
+  \[
+  Q(K^TV):
+  \quad
+  (T\times d)(d\times d_v)
+  \rightarrow
+  T\times d_v.
+  \]
+</div>
+
+<p>
+  The important point is that we never form the
+  \(T\times T\) matrix. The computation scales approximately as
+</p>
+
+<div class="equation">
+  \[
+  O(Td^2)+O(Tdd_v),
+  \]
+</div>
+
+<p>
+  rather than the \(O(T^2d)\) interaction cost associated with
+  explicitly forming \(QK^T\).
+</p>
+
+<p class="question-callout">
+  Then have we obtained ordinary softmax attention for free?
+</p>
+
+<p>
+  No. There is a crucial complication.
+  Standard attention contains the softmax:
+</p>
+
+<div class="equation">
+  \[
+  \operatorname{softmax}(QK^T)V.
+  \]
+</div>
+
+<p>
+  In general, the softmax cannot simply be moved through the matrix
+  multiplication in the same way. Therefore, the simple rearrangement
+  above does <strong>not</strong> reproduce standard softmax attention.
+</p>
+
+<p>
+  Linear attention methods instead modify the similarity computation,
+  often by expressing it through a feature map
+  \(\phi(\cdot)\):
+</p>
+
+<div class="equation">
+  \[
+  \operatorname{sim}(q,k)
+  =
+  \phi(q)^T\phi(k).
+  \]
+</div>
+
+<p>
+  This allows the attention output to be written in the form
+</p>
+
+<div class="equation">
+  \[
+  y_i
+  =
+  \frac{
+    \phi(q_i)^T
+    \displaystyle\sum_j \phi(k_j)v_j^T
+  }{
+    \phi(q_i)^T
+    \displaystyle\sum_j \phi(k_j)
+  }.
+  \]
+</div>
+
+<p>
+  The key quantity
+</p>
+
+<div class="equation">
+  \[
+  \sum_j \phi(k_j)v_j^T
+  \]
+</div>
+
+<p>
+  can be accumulated without constructing all pairwise
+  query-key scores. Each query then interacts with this accumulated
+  summary rather than with every key individually.
+</p>
+
+<p>
+  This is where the name <strong>linear attention</strong> comes from:
+  for a fixed feature dimension, the dependence on sequence length
+  can become linear rather than quadratic.
+</p>
+
+<p>
+  The trade-off is that these methods generally do not compute exactly
+  the same softmax attention distribution as standard attention.
+  They exchange the exact \(T\times T\) interaction for a more
+  computationally efficient formulation.
+</p>
+    </section>
+
+
+    <!-- =====================================================
+         FLASHATTENTION TEASER
+         ===================================================== -->
+
+    <section class="flash-teaser">
+
+      <div class="section-label">
+        A DIFFERENT QUESTION
+      </div>
+
+      <h2>
+        What if the problem isn't
+        <span>what attention computes?</span>
+      </h2>
+
+      <p>
+        We have changed the way attention is structured:
+        how queries, keys and values are shared, who can attend to
+        whom, and how many interactions are computed.
+      </p>
+
+      <p>
+        But there is another possibility.
+      </p>
+
+      <p class="flash-question">
+        What if the attention function is already right —
+        <strong>but we are computing it inefficiently?</strong>
+      </p>
+
+      <a
+        href="flash-attention.html"
+        class="flash-link"
+      >
+        Explore FlashAttention →
+      </a>
+
+    </section>
+
+
+    <!-- =====================================================
+         COMPLETE EQUATION
+         ===================================================== -->
+
+    <section class="article-section complete-equation">
+
+      <div class="section-label">
+        PUTTING IT TOGETHER
+      </div>
+
+      <div class="equation large-equation">
+
+        \[
+        \boxed{
+        \operatorname{Attention}(Q,K,V)
+        =
+        \operatorname{softmax}
+        \left(
+        \frac{QK^T}{\sqrt{d_k}}
+        \right)V
+        }
+        \]
+
+      </div>
+
+      <p>
+        Every part of the equation answers a different question.
+      </p>
+
+      <div class="mechanism-list">
+
+        <div>
+          <strong>QKᵀ</strong>
+          <span>Who is relevant to whom?</span>
+        </div>
+
+        <div>
+          <strong>√dₖ</strong>
+          <span>How do we keep the scores well-scaled?</span>
+        </div>
+
+        <div>
+          <strong>softmax</strong>
+          <span>How should relevance become weights?</span>
+        </div>
+
+        <div>
+          <strong>V</strong>
+          <span>What information should actually be retrieved?</span>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CLOSING
+         ===================================================== -->
+
+    <section class="article-section closing-section">
+
+      <div class="section-label">
+        THE DEEPER QUESTION
+      </div>
+
+      <h2>
+        What is attention really learning?
+      </h2>
+
+      <p>
+        At first glance, attention looks like a compact mathematical
+        operation.
+      </p>
+
+      <p>
+        But underneath the equation is a simple idea:
+      </p>
+
+      <p class="final-question">
+        <strong>
+          Decide what matters, and retrieve the information that matters.
+        </strong>
+      </p>
+
+      <p>
+        Queries describe what is being sought. Keys determine
+        compatibility. Values carry the information that gets
+        aggregated.
+      </p>
+
+      <p>
+        The mathematics turns this intuition into a differentiable
+        mechanism that can learn which relationships matter from data.
+      </p>
+
+      <p class="question-callout">
+        But if attention can relate every token to every other token,
+        what tells it where those tokens actually are?
+      </p>
+
+      <p class="final-link">
+        <a href="position-embeddings.html">
+          Explore Position Embeddings →
+        </a>
+      </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <nav class="article-footer-nav">
+
+      <a href="mechanics.html">
+        ← MODEL MECHANICS
+      </a>
+
+    </nav>
+
+  </main>
+
+
+  <!-- MathJax 3 -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</body>
+</html>

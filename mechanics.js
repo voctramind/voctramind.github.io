@@ -97,7 +97,8 @@ const nodes = [
     type: "topic",
     family: "foundations",
     x: 57,
-    y: 60
+    y: 60,
+    href: "Foundations/Activation/activation.html"
   },
 
   {

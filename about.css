@@ -36,7 +36,7 @@ html {
 body {
   margin: 0;
 
-  background: var(--bg);
+  background: #FFFFFF;
 
   color: #202124;
 
@@ -131,23 +131,6 @@ a {
   padding: 62px 0 82px;
 }
 
-.about-hero::after {
-  content: "";
-
-  position: absolute;
-
-  width: 180px;
-  height: 180px;
-
-  right: -80px;
-  top: 35px;
-
-  border: 1px solid rgba(79, 70, 229, 0.09);
-
-  border-radius: 50%;
-
-  pointer-events: none;
-}
 
 .about-hero h1 {
   max-width: 720px;
@@ -508,19 +491,6 @@ blockquote {
   border-top: 1px solid var(--border);
 }
 
-.about-end::before,
-.about-end::after {
-  content: "";
-
-  position: absolute;
-
-  width: 80px;
-  height: 80px;
-
-  border: 1px solid rgba(79, 70, 229, 0.08);
-
-  border-radius: 50%;
-}
 
 .about-end::before {
   left: 5%;
@@ -629,17 +599,19 @@ blockquote {
    ========================================================= */
 
 .about-kudos {
-  max-width: 680px;
+  max-width: 960px;
 
-  margin: 90px auto 0;
+  margin: 45px auto 0;
 
-  padding-top: 45px;
+  padding-top: 25px;
 
   border-top: 1px solid rgba(29, 29, 27, 0.12);
+
+  text-align: center;
 }
 
 .about-kudos .section-label {
-  margin-bottom: 22px;
+  margin-bottom: 12px;
 
   font-size: 0.68rem;
 
@@ -649,7 +621,7 @@ blockquote {
 }
 
 .about-kudos p {
-  max-width: 620px;
+  max-width: 960px;
 
   margin: 0 0 18px;
 
@@ -735,5 +707,271 @@ blockquote {
   .about-kudos p {
   font-size: 0.88rem;
   line-height: 1.75;
+  }
+}
+
+
+/* =========================================================
+   JOURNEY VISUAL
+   ========================================================= */
+
+.journey-visual-section {
+  padding-top: 76px;
+  padding-bottom: 76px;
+}
+
+.journey-visual-section .section-label {
+  margin-bottom: 24px;
+}
+
+.journey-figure {
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.journey-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .journey-visual-section {
+    padding-top: 62px;
+    padding-bottom: 62px;
+  }
+
+  .journey-figure {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .journey-figure img {
+    width: 960px;
+    max-width: none;
+  }
+}
+
+
+/* =========================================================
+   MOTHERHOOD COMIC
+   Keep the wide comic visually contained rather than
+   stretching it across the full About page.
+   ========================================================= */
+
+.motherhood-section {
+  padding-top: 68px;
+  padding-bottom: 78px;
+}
+
+.motherhood-section .section-label {
+  margin-bottom: 26px;
+}
+
+.motherhood-figure {
+  width: min(100%, 100%);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.motherhood-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   Keep the comic readable without forcing horizontal
+   scrolling.
+   --------------------------------------------------------- */
+
+@media (max-width: 760px) {
+
+  .motherhood-section {
+    padding-top: 58px;
+    padding-bottom: 62px;
+  }
+
+  .motherhood-figure {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+
+  .motherhood-figure img {
+    width: 100%;
+    height: auto;
+  }
+
+}
+
+
+/* =========================================================
+   MY PhD JOURNEY — TWO LOCKED COMICS
+   ========================================================= */
+
+.phd-comics-section {
+  padding-top: 76px;
+  padding-bottom: 78px;
+}
+
+.phd-comics-section .section-label {
+  margin-bottom: 26px;
+}
+
+.phd-comics {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.phd-comic {
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.phd-comic img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+}
+
+@media (max-width: 760px) {
+  .phd-comics-section {
+    padding-top: 58px;
+    padding-bottom: 62px;
+  }
+
+  .phd-comics {
+    gap: 24px;
+  }
+
+  .phd-comic {
+    border-radius: 5px;
+  }
+}
+
+/* =========================================================
+   JOURNEY / COMICS — TIGHTER, COMIC-MATCHED RHYTHM
+   ========================================================= */
+body {
+  background: #FFFFFF;
+}
+
+.journey-visual-section {
+  padding-top: 42px;
+  padding-bottom: 42px;
+}
+
+.journey-visual-section .section-label,
+.phd-comics-section .section-label,
+.motherhood-section .section-label {
+  color: #183f86;
+}
+
+.journey-visual-section .section-label::before,
+.phd-comics-section .section-label::before,
+.motherhood-section .section-label::before {
+  background: #183f86;
+  box-shadow:
+    0 0 0 4px rgba(24, 63, 134, 0.08),
+    0 0 12px rgba(24, 63, 134, 0.14);
+}
+
+.phd-comics-section {
+  padding-top: 38px;
+  padding-bottom: 42px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 248, 218, 0.18),
+      rgba(255, 255, 255, 0) 22%,
+      rgba(236, 246, 255, 0.16) 100%
+    );
+}
+
+.phd-comics-section .section-label {
+  margin-bottom: 18px;
+}
+
+.phd-comics {
+  gap: 18px;
+}
+
+.phd-comic {
+  border: 1px solid rgba(24, 63, 134, 0.10);
+  box-shadow: 0 8px 26px rgba(24, 63, 134, 0.045);
+}
+
+.motherhood-section {
+  padding-top: 42px;
+  padding-bottom: 48px;
+}
+
+.motherhood-section .section-label {
+  margin-bottom: 18px;
+}
+
+.about-end {
+  padding: 58px 0 58px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 248, 218, 0.16),
+      rgba(252, 251, 247, 0)
+    );
+}
+
+.about-end p {
+  color: #657080;
+}
+
+.about-end h2 {
+  color: #183f86;
+}
+
+.discover-button {
+  border-color: rgba(24, 63, 134, 0.25);
+  background: rgba(24, 63, 134, 0.045);
+  color: #183f86;
+}
+
+.discover-button:hover {
+  background: rgba(24, 63, 134, 0.08);
+  border-color: rgba(24, 63, 134, 0.40);
+}
+
+@media (max-width: 760px) {
+  .journey-visual-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .phd-comics-section {
+    padding-top: 38px;
+    padding-bottom: 42px;
+  }
+
+  .phd-comics {
+    gap: 14px;
+  }
+
+  .motherhood-section {
+    padding-top: 40px;
+    padding-bottom: 46px;
+  }
+
+  .about-end {
+    padding: 58px 0 58px;
   }
 }

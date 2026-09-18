@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activation Functions — From Nonlinearity to Learned Gating</title>
+
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']],
+    tags: 'ams'
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<link rel="stylesheet" href="activation.css">
+
+</head>
+
+<body>
+<aside class="lora-map">
+  <div class="map-kicker">DEEP LEARNING</div>
+  <div class="map-title">Activation Functions</div>
+  <nav class="timeline">
+    <a class="map-item" href="#properties"><i class="map-dot"></i><strong>Desired properties</strong><span>What makes an activation useful?</span></a>
+    <a class="map-item" href="#continuity"><i class="map-dot"></i><strong>Continuity</strong><span>Can the function jump?</span></a>
+    <a class="map-item" href="#differentiability"><i class="map-dot"></i><strong>Differentiability</strong><span>Can we backpropagate?</span></a>
+    <a class="map-item" href="#smoothness"><i class="map-dot"></i><strong>Smoothness</strong><span>Does the slope change gently?</span></a>
+    <a class="map-item" href="#saturation"><i class="map-dot"></i><strong>Saturation</strong><span>What happens to gradients?</span></a>
+    <a class="map-item" href="#relu-family"><i class="map-dot"></i><strong>ReLU family</strong><span>Can we fix the negative side?</span></a>
+    <a class="map-item" href="#smooth-modern"><i class="map-dot"></i><strong>Modern activations</strong><span>Softplus, SiLU, GELU, Mish</span></a>
+    <a class="map-item" href="#lstm"><i class="map-dot"></i><strong>LSTM gates</strong><span>Why sigmoid + tanh?</span></a>
+    <a class="map-item" href="#glu"><i class="map-dot"></i><strong>GLU family</strong><span>Activation becomes gating</span></a>
+    <a class="map-item" href="#choice"><i class="map-dot"></i><strong>When to use what?</strong><span>Choose by role, not fashion</span></a>
+  </nav>
+</aside>
+
+<main class="article-page">
+<header class="article-header">
+  <div class="eyebrow">LECTURE · ACTIVATION FUNCTIONS</div>
+  <h1>From nonlinearity<br>to learned gating.</h1>
+  <p class="deck">Activation functions look like tiny scalar operations. But their continuity, differentiability, smoothness, saturation and gradient behavior shape how an entire neural network learns.</p>
+</header>
+
+<div class="hero-question">
+  Before memorizing ReLU, GELU, SiLU or SwiGLU, ask a more useful question:
+  <strong>what properties do we actually want from an activation function?</strong>
+</div>
+
+<section class="article-section" id="properties">
+<div class="question-number">01 · THE DESIGN SPACE</div>
+<h2>What do we want from an activation?</h2>
+<p>The first requirement is <strong>nonlinearity</strong>. If every layer were affine, composing many layers would still produce one affine transformation.</p>
+<div class="equation">\[
+f(ax+b)\neq af(x)+b
+\]</div>
+<p>But nonlinearity is only the beginning. A useful activation can also be judged by:</p>
+<ul>
+<li><strong>Continuity:</strong> does the output change without jumps?</li>
+<li><strong>Differentiability:</strong> does a derivative exist where backpropagation needs it?</li>
+<li><strong>Smoothness:</strong> does the function, and perhaps its derivatives, change gently?</li>
+<li><strong>Gradient behavior:</strong> does the derivative vanish or remain useful?</li>
+<li><strong>Saturation:</strong> does the derivative become tiny for large inputs?</li>
+<li><strong>Output range:</strong> bounded or unbounded?</li>
+<li><strong>Zero-centering:</strong> are positive and negative outputs both available?</li>
+</ul>
+<div class="callout"><strong>Key idea.</strong> No activation wins every property. Activation design is a sequence of trade-offs.</div>
+</section>
+
+<section class="article-section" id="continuity">
+<div class="question-number">02 · CONTINUITY</div>
+<h2>Can an activation jump?</h2>
+<p>A function is continuous at \(x_0\) when its limiting value agrees with its value:</p>
+<div class="equation">\[
+\lim_{x\to x_0}f(x)=f(x_0).
+\]</div>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">Continuity means there is no jump as the input crosses a point. The right-hand example has different limiting values from the two sides.</div>
+</figure>
+
+<p>Continuity is desirable because small changes in the input should not create an arbitrary finite jump in the output. But continuity alone says nothing about whether gradients are usable.</p>
+</section>
+
+<section class="article-section" id="differentiability">
+<div class="question-number">03 · DIFFERENTIABILITY</div>
+<h2>Can a continuous function still fail to have a derivative?</h2>
+<p>Yes. The canonical example is:</p>
+<div class="equation">\[
+f(x)=|x|.
+\]</div>
+<p>It is continuous at \(0\), but the slope approaching from the left is \(-1\), while the slope approaching from the right is \(+1\).</p>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">A corner can preserve continuity while destroying differentiability at a point.</div>
+</figure>
+
+<p>This distinction becomes central for ReLU.</p>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">ReLU is continuous everywhere but has a kink at the origin. In practice, optimization uses a chosen subgradient convention at that single point.</div>
+</figure>
+</section>
+
+<section class="article-section" id="smoothness">
+<div class="question-number">04 · SMOOTHNESS</div>
+<h2>What does “smooth” actually mean?</h2>
+<p>Informally, smoothness means there are no abrupt changes in the slope. More formally, we can classify functions by differentiability: \(C^0\) means continuous, \(C^1\) means continuously differentiable, and \(C^\infty\) means infinitely differentiable.</p>
+<p>Compare ReLU with Softplus:</p>
+<div class="equation">\[
+\operatorname{ReLU}(x)=\max(0,x),
+\qquad
+\operatorname{Softplus}(x)=\log(1+e^x).
+\]</div>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">Softplus replaces ReLU's sharp corner with a smooth transition. Smoothness is a mathematical property; it does not automatically imply better optimization.</div>
+</figure>
+
+<div class="callout"><strong>Important distinction:</strong> differentiability, smoothness, and good gradient flow are related but not synonymous.</div>
+</section>
+
+<section class="article-section" id="saturation">
+<div class="question-number">05 · SATURATION</div>
+<h2>A function can be perfectly smooth and still be troublesome.</h2>
+<p>Sigmoid is infinitely differentiable, but its derivative becomes very small in both tails:</p>
+<div class="equation">\[
+\sigma(x)=\frac{1}{1+e^{-x}},
+\qquad
+\sigma'(x)=\sigma(x)(1-\sigma(x)).
+\]</div>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">The sigmoid is smooth everywhere, yet its tails saturate. In deep compositions, repeatedly multiplying by small derivatives can produce vanishing gradients.</div>
+</figure>
+
+<p>Tanh has the same saturation issue, but it is zero-centered:</p>
+<div class="equation">\[
+\tanh(x)\in(-1,1),
+\qquad
+\frac{d}{dx}\tanh(x)=1-\tanh^2(x).
+\]</div>
+</section>
+
+<section class="article-section" id="relu-family">
+<div class="question-number">06 · THE RELU FAMILY</div>
+<h2>Can we avoid saturation on the positive side?</h2>
+<p>ReLU answers yes:</p>
+<div class="equation">\[
+\operatorname{ReLU}(x)=\max(0,x).
+\]</div>
+<p>For positive inputs its gradient is \(1\), so it does not saturate there. But the negative side is completely flat.</p>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">The family progressively changes the negative region: fixed zero slope (ReLU), small fixed slope (Leaky ReLU), learnable slope (PReLU), and a smooth negative saturation (ELU).</div>
+</figure>
+
+<h3>Leaky ReLU</h3>
+<div class="equation">\[
+f(x)=\max(\alpha x,x),\qquad \alpha>0.
+\]</div>
+<p>The negative branch retains a small gradient instead of becoming exactly zero.</p>
+
+<h3>PReLU</h3>
+<div class="equation">\[
+f(x)=
+\begin{cases}
+x,&x>0\\
+\alpha x,&x\le0
+\end{cases}
+\]</div>
+<p>The difference is that \(\alpha\) is learned rather than fixed.</p>
+
+<h3>ELU</h3>
+<div class="equation">\[
+f(x)=
+\begin{cases}
+x,&x>0\\
+\alpha(e^x-1),&x\le0
+\end{cases}
+\]</div>
+<p>ELU keeps a smooth negative branch and approaches \(-\alpha\) for large negative inputs.</p>
+
+<h3>SELU</h3>
+<p>SELU modifies the ELU idea with carefully chosen scaling parameters so that, under specific architectural and initialization assumptions, activations tend toward a self-normalizing regime.</p>
+</section>
+
+<section class="article-section" id="smooth-modern">
+<div class="question-number">07 · SMOOTH MODERN ACTIVATIONS</div>
+<h2>If ReLU has a hard corner, can we soften the decision?</h2>
+<h3>Softplus</h3>
+<div class="equation">\[
+\operatorname{Softplus}(x)=\log(1+e^x).
+\]</div>
+<p>Softplus is smooth and behaves like a smooth approximation to ReLU.</p>
+
+<h3>Swish / SiLU</h3>
+<div class="equation">\[
+\operatorname{SiLU}(x)=x\,\sigma(x).
+\]</div>
+<p>The sigmoid factor acts like a soft, input-dependent modulation. Unlike ReLU, the function is smooth and can take slightly negative values.</p>
+
+<h3>GELU</h3>
+<div class="equation">\[
+\operatorname{GELU}(x)=x\,\Phi(x),
+\]</div>
+<p>where \(\Phi(x)\) is the standard normal cumulative distribution function. GELU smoothly weights an input according to its magnitude rather than applying a hard threshold.</p>
+
+<h3>Mish</h3>
+<div class="equation">\[
+\operatorname{Mish}(x)=x\tanh(\operatorname{Softplus}(x)).
+\]</div>
+<p>Mish is another smooth, non-monotonic activation. It is useful to know historically and conceptually, even though modern architectures do not uniformly prefer it.</p>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">The important shift is not simply “ReLU is old, GELU is new.” Modern smooth activations change how inputs are weighted around zero and can introduce non-monotonic behavior.</div>
+</figure>
+</section>
+
+<section class="article-section" id="lstm">
+<div class="question-number">08 · LSTM</div>
+<h2>Why does an LSTM use sigmoid and tanh?</h2>
+<p>The answer is architectural role, not generic activation quality.</p>
+<div class="equation">\[
+i_t=\sigma(W_ix_t+U_ih_{t-1}+b_i)
+\]</div>
+<div class="equation">\[
+f_t=\sigma(W_fx_t+U_fh_{t-1}+b_f)
+\]</div>
+<div class="equation">\[
+o_t=\sigma(W_ox_t+U_oh_{t-1}+b_o)
+\]</div>
+<div class="equation">\[
+\tilde c_t=\tanh(W_cx_t+U_ch_{t-1}+b_c)
+\]</div>
+<p>Sigmoid produces values in \((0,1)\), making it naturally useful as a soft gate. Tanh produces a bounded signed candidate state.</p>
+<div class="equation">\[
+c_t=f_t\odot c_{t-1}+i_t\odot\tilde c_t,
+\qquad
+h_t=o_t\odot\tanh(c_t).
+\]</div>
+<div class="callout"><strong>Do not memorize:</strong> “LSTMs use sigmoid and tanh because they are the best activations.” Instead remember: <strong>sigmoid controls; tanh represents a bounded signed state.</strong></div>
+</section>
+
+<section class="article-section" id="glu">
+<div class="question-number">09 · GLU FAMILY</div>
+<h2>What if the activation itself becomes a gate?</h2>
+<p>A GLU creates two learned paths and multiplies them:</p>
+<div class="equation">\[
+\operatorname{GLU}(x)=A(x)\odot B(x).
+\]</div>
+<p>Modern variants change the activation used on one branch:</p>
+<table class="compare">
+<thead><tr><th>Variant</th><th>Form</th><th>Idea</th></tr></thead>
+<tbody>
+<tr><td>GLU</td><td>\(A\odot\sigma(B)\)</td><td>sigmoid gating</td></tr>
+<tr><td>ReGLU</td><td>\(A\odot\operatorname{ReLU}(B)\)</td><td>ReLU gate</td></tr>
+<tr><td>GEGLU</td><td>\(A\odot\operatorname{GELU}(B)\)</td><td>GELU gate</td></tr>
+<tr><td>SwiGLU</td><td>\(A\odot\operatorname{SiLU}(B)\)</td><td>smooth learned gate</td></tr>
+</tbody>
+</table>
+
+<figure class="figure">
+<div class="figure-placeholder">FIGURE PLACEHOLDER — final graph will be generated separately</div>
+<div class="caption">SwiGLU is not merely “SiLU instead of GELU.” It introduces a multiplicative interaction between two learned projections, one modulated by SiLU.</div>
+</figure>
+
+<div class="equation">\[
+\operatorname{SwiGLU}(x)
+=
+W_3\left(\operatorname{SiLU}(W_1x)\odot W_2x\right).
+\]</div>
+</section>
+
+<section class="article-section" id="choice">
+<div class="question-number">10 · CHOOSING</div>
+<h2>When should we use which activation?</h2>
+<table class="compare">
+<thead><tr><th>Activation</th><th>Strength</th><th>Typical role</th></tr></thead>
+<tbody>
+<tr><td>Sigmoid</td><td>bounded \((0,1)\), natural gate</td><td>binary outputs, gates</td></tr>
+<tr><td>Tanh</td><td>bounded, zero-centered</td><td>RNN/LSTM state transformations</td></tr>
+<tr><td>ReLU</td><td>simple, cheap, strong positive gradient</td><td>classic hidden layers, CNNs</td></tr>
+<tr><td>Leaky ReLU</td><td>nonzero negative slope</td><td>ReLU-family alternative</td></tr>
+<tr><td>PReLU</td><td>learnable negative slope</td><td>specialized ReLU-family models</td></tr>
+<tr><td>ELU</td><td>smooth negative branch</td><td>historical alternative to ReLU</td></tr>
+<tr><td>SELU</td><td>self-normalizing behavior under assumptions</td><td>specific self-normalizing architectures</td></tr>
+<tr><td>Softplus</td><td>smooth ReLU-like mapping</td><td>when smooth positivity is useful</td></tr>
+<tr><td>SiLU / Swish</td><td>smooth, non-monotonic</td><td>modern neural networks</td></tr>
+<tr><td>GELU</td><td>smooth input-dependent weighting</td><td>Transformers / modern architectures</td></tr>
+<tr><td>SwiGLU</td><td>learned multiplicative gating</td><td>modern Transformer FFNs</td></tr>
+</tbody>
+</table>
+
+<div class="evolution">
+<strong>The evolution in one line:</strong><br><br>
+Nonlinearity → saturation problem → ReLU → dead-negative region → Leaky/PReLU/ELU → smooth nonlinearities → learned multiplicative gating
+</div>
+
+<p>The practical lesson is not “always use the newest activation.” Choose according to the <strong>role the activation must play</strong>: generic hidden nonlinearity, bounded output, gate, smooth transformation, or multiplicative interaction.</p>
+</section>
+
+<div class="footer-note">
+The useful habit is to look at an activation's graph and immediately ask: Is it continuous? Is it differentiable? Where is its derivative large or small? Does it saturate? Is it zero-centered? What architectural role is it serving?
+</div>
+</main>
+
+<script>
+const items = [...document.querySelectorAll('.map-item')];
+const sections = [...document.querySelectorAll('.article-section')];
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      items.forEach(i => i.classList.remove('active'));
+      const active = document.querySelector('.map-item[href="#' + entry.target.id + '"]');
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-18% 0px -65% 0px', threshold: 0 });
+
+sections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>
