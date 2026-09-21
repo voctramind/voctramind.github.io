@@ -127,6 +127,15 @@
             <em>From exponentials to rotation</em>
           </span>
         </a>
+
+	<a class="map-item" href="#yarn" data-target="yarn">
+		<span class="map-number">13</span>
+         <i class="map-dot"></i>
+         <span class="map-copy">
+           <strong>YaRN</strong>
+           <em>Extending RoPE to unseen positions</em>
+         </span>
+        </a>
       </nav>
     </aside>
 
@@ -1515,8 +1524,574 @@
 <section>
 
 
+<section class="article-section yarn-section" id="yarn">
+
+  <div class="section-label">BEYOND THE TRAINING CONTEXT</div>
+
+  <h2>What happens when RoPE meets a longer context?</h2>
+
+  <p>
+    RoPE can compute positions beyond the context length used during training.
+    But can the model actually interpret them?
+  </p>
+
+  <div class="question-callout">
+    <strong>THE QUESTION</strong>
+    <p>
+      The frequency is not new. So what exactly becomes unseen?
+    </p>
+  </div>
+
+  <p>
+    For a RoPE frequency <em>ω</em>,
+  </p>
+
+  <div class="equation">
+    θ<sub>p</sub> = pω,
+  </div>
+
+  <p>
+  where <strong>p</strong> is the position. During training, the model sees only the positional samples of this
+    trajectory within its training context:
+  </p>
+
+  <div class="equation">
+    θ<sub>0</sub>, θ<sub>1</sub>, …, θ<sub>L</sub>
+  </div>
+
+  <p>
+    When we extend the context beyond <em>L</em>, the frequency itself is still
+    familiar. What is new are the <strong>positional samples of that trajectory
+    beyond the training range</strong>.
+  </p>
+
+  <div class="yarn-takeaway">
+    <strong>THE KEY IDEA</strong>
+    <span>
+      The frequency is familiar. The positional samples beyond the training
+      range are not.
+    </span>
+  </div>
 
 
+  <h3>How much of the trajectory has the model actually seen?</h3>
+
+  <p>
+    Consider standard RoPE with
+    <strong>d = 1024</strong> and a 4K training context.
+  </p>
+
+  <p>
+    The RoPE frequencies span approximately
+  </p>
+
+  <div class="equation">
+    ω<sub>max</sub> = 1
+    &nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;&nbsp;
+    ω<sub>min</sub> ≈ 1.04 × 10<sup>−4</sup>
+  </div>
+
+  <p>
+    The same 4K context therefore covers dramatically different portions of
+    the positional trajectory at the two ends of the spectrum.
+  </p>
+
+
+  <div class="yarn-cycle-grid">
+
+    <div>
+      <span class="cycle-label">HIGH FREQUENCY</span>
+
+      <strong>≈ 652 cycles</strong>
+
+      <p>
+        With ω<sub>max</sub> = 1, the wavelength is approximately
+        2π, so the model traverses hundreds of cycles within 4K positions.
+      </p>
+    </div>
+
+    <div>
+      <span class="cycle-label">LOW FREQUENCY</span>
+
+      <strong>≈ 0.068 cycles</strong>
+
+      <p>
+        With ω<sub>min</sub> ≈ 1.04 × 10<sup>−4</sup>, the wavelength is
+        approximately 60,618 positions. Only a tiny fraction of one cycle
+        is observed.
+      </p>
+    </div>
+
+  </div>
+
+
+  <p>
+    Now extend the context from 4K to 32K.
+  </p>
+
+  <p>
+    The lowest-frequency component now traverses approximately
+  </p>
+
+  <div class="equation">
+    32,768 / 60,618 ≈ 0.54 cycles.
+  </div>
+
+  <p>
+    The model is therefore being asked to interpret a much larger segment of a
+    trajectory that it had only partially observed during training.
+  </p>
+
+
+  <h3>So can we bring the unseen samples back?</h3>
+
+  <p>
+    If the extended positions lie beyond the positional range encountered
+    during training, one natural idea is:
+  </p>
+
+  <div class="question-callout">
+    <strong>THE QUESTION</strong>
+    <p>
+      Can we map the extended positions back toward the range of samples the
+      model has already seen?
+    </p>
+  </div>
+
+  <p>
+    This is the basic idea behind <strong>position interpolation</strong>.
+  </p>
+
+  <p>
+    If the context is extended by a factor
+    <em>s</em>, we compress the positional index:
+  </p>
+
+  <div class="equation">
+    p′ = p / s
+  </div>
+
+  <p>
+    and therefore
+  </p>
+
+  <div class="equation">
+    θ<sub>p</sub> = pω
+    &nbsp;&nbsp;→&nbsp;&nbsp;
+    θ′<sub>p</sub> = (p/s)ω
+  </div>
+
+  <p>
+    Equivalently, we can view this as downscaling the RoPE frequency:
+  </p>
+
+  <div class="equation">
+    ω′ = ω / s
+  </div>
+
+  <p>
+    The longer positional range is therefore compressed back toward the
+    positional regime encountered during training.
+  </p>
+
+
+  <h3>But should every frequency be interpolated equally?</h3>
+
+  <p>
+    This is where the high-frequency components become important.
+  </p>
+
+  <p>
+    The high-frequency components have already traversed hundreds of cycles
+    within the original 4K context. So extending length will not result in unseen parts of the trajectory. Also, they provide very fine positional
+    variation.
+  </p>
+
+  <div class="question-callout">
+    <strong>THE QUESTION</strong>
+    <p>
+      Should a frequency that has already traversed hundreds of cycles be
+      compressed in exactly the same way as one that has traversed only
+      0.068 cycles?
+    </p>
+  </div>
+
+  <p>
+    Uniform interpolation would downscale both:
+  </p>
+
+  <div class="equation">
+    ω′ = ω / s
+  </div>
+
+  <p>
+    This helps the low-frequency components, but it also reduces the
+    high-frequency components. Their wavelengths become longer, which can
+    reduce the fine positional resolution they provide.
+  </p>
+
+  <div class="question-callout">
+    <strong>SO WHAT SHOULD WE DO?</strong>
+    <p>
+      Interpolate the low frequencies strongly, preserve more of the high
+      frequencies, and make the transition smooth in between.
+    </p>
+  </div>
+
+
+  <h3>Frequency-aware interpolation</h3>
+
+  <p>
+    Instead of applying the same scaling factor to every frequency, assign
+    each frequency its own scaling factor:
+  </p>
+
+  <div class="equation">
+    ω′<sub>d</sub> = α<sub>d</sub> ω<sub>d</sub>
+  </div>
+
+  <p>
+    where
+  </p>
+
+  <div class="equation">
+    1/s ≤ α<sub>d</sub> ≤ 1.
+  </div>
+
+  <p>
+    Thus:
+  </p>
+
+  <div class="yarn-principles">
+
+    <div>
+      <strong>LOW FREQUENCIES</strong>
+      <span>
+        α<sub>d</sub> ≈ 1/s<br>
+        stronger interpolation
+      </span>
+    </div>
+
+    <div>
+      <strong>INTERMEDIATE FREQUENCIES</strong>
+      <span>
+        1/s &lt; α<sub>d</sub> &lt; 1<br>
+        smooth transition
+      </span>
+    </div>
+
+    <div>
+      <strong>HIGH FREQUENCIES</strong>
+      <span>
+        α<sub>d</sub> ≈ 1<br>
+        preserve more of the original frequency
+      </span>
+    </div>
+
+  </div>
+
+  <h3>NTK-by-parts makes the transition explicit</h3>
+
+  <p>
+    Instead of treating the entire frequency spectrum uniformly, YaRN uses
+    the number of rotations to determine how much interpolation each
+    frequency receives.
+  </p>
+
+  <p>
+    A smooth ramp function is defined as
+  </p>
+
+<div class="equation">
+  γ(r) =
+  0, &nbsp; r &lt; α
+  <br>
+  (r − α) / (β − α), &nbsp; α ≤ r ≤ β
+  <br>
+  1, &nbsp; r &gt; β
+</div>
+  <p>
+    The ramp therefore moves gradually from
+    <strong>0</strong> to <strong>1</strong> as the number of rotations
+    increases.
+  </p>
+
+  <div class="yarn-principles">
+
+    <div>
+      <strong>FEW ROTATIONS</strong>
+      <span>
+        γ(r) ≈ 0<br>
+        stronger interpolation
+      </span>
+    </div>
+
+    <div>
+      <strong>TRANSITION</strong>
+      <span>
+        0 &lt; γ(r) &lt; 1<br>
+        smooth blending
+      </span>
+    </div>
+
+    <div>
+      <strong>MANY ROTATIONS</strong>
+      <span>
+        γ(r) ≈ 1<br>
+        preserve more of the original frequency
+      </span>
+    </div>
+
+  </div>
+
+
+  <p>
+    The actual NTK-by-parts transformation then blends the interpolated and
+    original RoPE angles:
+  </p>
+
+<div class="equation">
+  h(θ<sub>d</sub>) =
+  (1 − γ(r(d))) θ<sub>d</sub> / s
+  +
+  γ(r(d)) θ<sub>d</sub>
+</div>
+  <p>
+    where <em>s = L′ / L</em> is the context-extension factor.
+  </p>
+
+
+  <div class="question-callout">
+    <strong>SO WHAT HAPPENS?</strong>
+    <p>
+      Frequencies that have seen only a small part of their trajectory are
+      interpolated strongly. Frequencies that have already traversed many
+      rotations are preserved. Between them, the transition is gradual.
+    </p>
+  </div>
+  <div class="yarn-takeaway">
+    <strong>ONE-TO-ONE</strong>
+    <span>
+      One original RoPE frequency → one scaled RoPE frequency.
+    </span>
+  </div>
+
+  <p>
+    What changes across the spectrum is simply the value of
+    α<sub>d</sub>.
+  </p>
+
+
+  <h3>But changing the frequency changes the position</h3>
+
+  <p>
+    Remember:
+  </p>
+
+  <div class="equation">
+    θ<sub>p</sub> = pω
+  </div>
+
+  <p>
+    So if we change ω, the rotation angle at the same position changes too:
+  </p>
+
+  <div class="equation">
+    ω → ω′
+    &nbsp;&nbsp;⇒&nbsp;&nbsp;
+    pω → pω′
+  </div>
+
+  <p>
+    For example, if
+    <strong>p = 100</strong> and we interpolate by
+    <strong>s = 4</strong>:
+  </p>
+
+  <div class="equation">
+    θ = 100ω
+    &nbsp;&nbsp;→&nbsp;&nbsp;
+    θ′ = 100(ω/4) = 25ω
+  </div>
+
+  <p>
+    The physical positions have not moved. But they are now
+    <strong>closer in RoPE phase</strong>.
+  </p>
+
+  <p>
+    More generally, for two positions p<sub>1</sub> and p<sub>2</sub>,
+  </p>
+
+  <div class="equation">
+    Δθ = (p<sub>2</sub> − p<sub>1</sub>)ω
+  </div>
+
+  <p>
+    becomes
+  </p>
+
+  <div class="equation">
+    Δθ′ = (p<sub>2</sub> − p<sub>1</sub>)ω′.
+  </div>
+
+  <p>
+    Under interpolation, the phase separation is compressed.
+  </p>
+
+
+  <h3>And now attention changes</h3>
+
+  <p>
+    RoPE rotates the query and key vectors:
+  </p>
+
+  <div class="equation">
+    q′ = R(pω)q
+    &nbsp;&nbsp;&nbsp;
+    k′ = R(pω)k
+  </div>
+
+  <p>
+    Therefore changing ω changes the rotations applied to q and k, and hence
+    changes their dot product:
+  </p>
+
+  <div class="equation">
+    q′<sup>T</sup>k′
+  </div>
+
+  <p>
+    which is the quantity that contributes to the attention logit:
+  </p>
+
+  <div class="equation">
+    A<sub>ij</sub>
+    =
+    q<sub>i</sub><sup>T</sup>k<sub>j</sub> / √d
+  </div>
+
+  <p>
+    So interpolation is not merely changing a position index. It changes the
+    <strong>positional geometry of the query–key interaction</strong>.
+  </p>
+
+
+  <h3>So what does YaRN do about the attention change?</h3>
+
+  <p>
+    Once the RoPE frequencies are modified, the resulting attention-logit
+    statistics also change.
+  </p>
+
+  <div class="question-callout">
+    <strong>THE NEXT QUESTION</strong>
+    <p>
+      If the positional geometry has changed, how do we compensate for the
+      resulting change in attention magnitude?
+    </p>
+  </div>
+
+  <p>
+    YaRN introduces an additional <strong>attention-magnitude scaling</strong>
+    factor.
+  </p>
+
+  <p>
+    In the standard YaRN formulation, the magnitude factor is
+  </p>
+
+  <div class="equation">
+    m(s) = 1 + 0.1 ln(s)
+  </div>
+
+  <p>
+    and the transformed query and key can be viewed as
+  </p>
+
+  <div class="equation">
+    q′ = m(s)q
+    &nbsp;&nbsp;&nbsp;
+    k′ = m(s)k.
+  </div>
+
+  <p>
+    Therefore,
+  </p>
+
+  <div class="equation">
+    q′<sup>T</sup>k′
+    =
+    m(s)<sup>2</sup> q<sup>T</sup>k.
+  </div>
+
+  <p>
+    Equivalently, the attention logits are multiplied by
+  </p>
+
+  <div class="equation">
+    m(s)<sup>2</sup>
+    =
+    [1 + 0.1 ln(s)]<sup>2</sup>.
+  </div>
+
+  <p>
+    Since m(s) &gt; 1 for an extension factor s &gt; 1, this increases the
+    magnitude of the attention logits and makes the resulting softmax
+    distribution sharper.
+  </p>
+
+
+  <h3>Why ln(s)?</h3>
+
+  <p>
+    The logarithmic dependence means that the correction grows gradually as
+    the context-extension factor increases rather than growing linearly with
+    context length.
+  </p>
+
+  <div class="question-callout">
+    <strong>IMPORTANT</strong>
+    <p>
+      Is the 0.1 coefficient derived directly from RoPE mathematics?
+    </p>
+  </div>
+
+  <p>
+    No. The particular logarithmic magnitude-scaling rule, including the
+    <strong>0.1 coefficient</strong>, is an empirical design choice introduced
+    by YaRN.
+  </p>
+
+  <p>
+    The underlying reasoning is principled: changing the RoPE frequency
+    spectrum changes the attention computation. The particular amount of
+    magnitude compensation was determined empirically.
+  </p>
+
+
+
+  <div class="yarn-summary">
+
+    <div class="yarn-summary-title">
+      YA RN
+    </div>
+
+    <div class="yarn-summary-equation">
+      frequency-aware RoPE scaling
+      <span>+</span>
+      attention-magnitude scaling
+    </div>
+
+  </div>
+
+
+  <div class="yarn-final-line">
+    The frequency is familiar.<br>
+    <strong>What changes is how the model traverses its positional trajectory.</strong>
+  </div>
+
+</section>
 
     <section class="journey-section">
 
@@ -1526,7 +2101,8 @@
 
       <h2>
         From knowing where we are<br>
-        to knowing where we are relative to each other.
+	to knowing where we are relative to each other <br>
+	in the known parts of the trajectory.
       </h2>
 
       <div class="journey-map">
@@ -1579,10 +2155,24 @@
         </div>
 
 <span class="journey-arrow">↓</span>
-        <div class="journey-current">
+        <div>
           <strong>RoPE</strong>
           <span>
             Rotate the queries and keys.
+          </span>
+        </div>
+
+      
+
+
+
+
+
+<span class="journey-arrow">↓</span>
+        <div class="journey-current">
+          <strong>YaRN</strong>
+          <span>
+            Extending RoPE to unseen context lengths
           </span>
         </div>
 
@@ -1600,7 +2190,182 @@
 
     </section>
 
+<!-- =========================================================
+     REFERENCES
+     ========================================================= -->
 
+<section class="article-section references-section" id="references">
+
+  <div class="section-label">REFERENCES</div>
+
+  <h2>Where these ideas came from.</h2>
+
+  <div class="references-list">
+
+    <div class="reference-item">
+      <span class="reference-number">01</span>
+      <div>
+        <strong>Attention Is All You Need</strong>
+        <p>
+          Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J.,
+          Jones, L., Gomez, A. N., Kaiser, Ł., &amp; Polosukhin, I.
+          (2017).
+        </p>
+        <a
+          href="https://arxiv.org/abs/1706.03762"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:1706.03762 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">02</span>
+      <div>
+        <strong>
+          Transformer-XL: Attentive Language Models Beyond a
+          Fixed-Length Context
+        </strong>
+        <p>
+          Dai, Z., Yang, Z., Yang, Y., Carbonell, J., Le, Q. V.,
+          &amp; Salakhutdinov, R. (2019).
+        </p>
+        <a
+          href="https://arxiv.org/abs/1901.02860"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:1901.02860 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">03</span>
+      <div>
+        <strong>
+          Exploring the Limits of Transfer Learning with a Unified
+          Text-to-Text Transformer
+        </strong>
+        <p>
+          Raffel, C., Shazeer, N., Roberts, A., Lee, K., Narang, S.,
+          Matena, M., Zhou, Y., Li, W., &amp; Liu, P. J. (2020).
+        </p>
+        <a
+          href="https://arxiv.org/abs/1910.10683"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:1910.10683 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">04</span>
+      <div>
+        <strong>
+          Train Short, Test Long: Attention with Linear Biases
+          Enables Input Length Extrapolation
+        </strong>
+        <p>
+          Press, O., Smith, N. A., &amp; Lewis, M. (2022).
+        </p>
+        <a
+          href="https://arxiv.org/abs/2108.12409"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:2108.12409 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">05</span>
+      <div>
+        <strong>
+          RoFormer: Enhanced Transformer with Rotary Position Embedding
+        </strong>
+        <p>
+          Su, J., Lu, Y., Pan, S., Murtadha, A., Wen, B.,
+          &amp; Liu, Y. (2021).
+        </p>
+        <a
+          href="https://arxiv.org/abs/2104.09864"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:2104.09864 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">06</span>
+      <div>
+        <strong>
+          Extending Context Window of Large Language Models via
+          Positional Interpolation
+        </strong>
+        <p>
+          Chen, S., Wong, S., Chen, L., &amp; Tian, Y. (2023).
+        </p>
+        <a
+          href="https://arxiv.org/abs/2306.15595"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:2306.15595 ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">07</span>
+      <div>
+        <strong>
+          NTK-Aware Scaled RoPE
+        </strong>
+        <p>
+          Bloc97 (2023).
+          Community proposal for NTK-aware scaling of RoPE frequencies
+          for context extension.
+        </p>
+        <a
+          href="https://www.reddit.com/r/LocalLLaMA/comments/14lz7j5/ntkaware_scaled_rope_allows_llama_models_to_have/"
+          target="_blank"
+          rel="noopener noreferrer">
+          Original discussion ↗
+        </a>
+      </div>
+    </div>
+
+
+    <div class="reference-item">
+      <span class="reference-number">08</span>
+      <div>
+        <strong>
+          YaRN: Efficient Context Window Extension of Large Language Models
+        </strong>
+        <p>
+          Peng, B., Quesnelle, J., Fan, H., &amp; Shippole, E. (2024).
+          International Conference on Learning Representations (ICLR).
+        </p>
+        <a
+          href="https://arxiv.org/abs/2309.00071"
+          target="_blank"
+          rel="noopener noreferrer">
+          arXiv:2309.00071 ↗
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</section>
 
   </main>
 
