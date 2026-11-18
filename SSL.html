@@ -1,0 +1,1646 @@
+i<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Speech Self-Supervised Learning — VoctraMind</title>
+
+  <link rel="stylesheet" href="SSL.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+</head>
+
+<body>
+
+<main class="article-page">
+
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
+
+  <nav class="article-nav">
+    <a href="../discover.html">← DISCOVER SPEECH</a>
+  </nav>
+
+
+  <!-- =====================================================
+       HEADER
+       ===================================================== -->
+
+  <header class="article-header">
+
+    <div class="section-label">
+      SPEECH AI / SELF-SUPERVISED LEARNING
+    </div>
+
+    <h1>
+      Can speech<br>
+      <span>teach itself?</span>
+    </h1>
+
+    <p class="article-intro">
+      We have enormous amounts of speech, but transcripts and
+      speaker labels are expensive. Self-supervised learning asks
+      a different question: what structure can a model discover
+      directly from speech itself?
+    </p>
+
+  </header>
+
+
+  <!-- =====================================================
+       01 — WHY SSL?
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      01 — THE QUESTION
+    </div>
+
+    <h2>
+      What if the labels<br>
+      are already in the signal?
+    </h2>
+
+    <p>
+      A speech recording contains far more information than a
+      transcript tells us.
+    </p>
+
+    <p>
+      It contains phonetic structure, lexical information,
+      speaker characteristics, prosody, rhythm, channel
+      characteristics and environmental information.
+    </p>
+
+    <p>
+      Yet conventional supervised learning asks us to provide
+      explicit labels for the task we care about.
+    </p>
+
+    <p class="question-callout">
+      If the waveform already contains structure,
+      can I construct a learning problem from the waveform itself?
+    </p>
+
+    <p>
+      This is the central idea behind speech self-supervised
+      learning.
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        Unlabelled speech → pretext task → learned representation
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       02 — PREDICTION
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      02 — PREDICTION
+    </div>
+
+    <h2>
+      The first idea:<br>
+      predict what comes next.
+    </h2>
+
+    <p>
+      One way to create a learning signal without labels is to
+      hide the future and ask the model to predict it.
+    </p>
+
+    <p>
+      If a representation captures enough information about the
+      past, it should contain useful information about what is
+      likely to happen next.
+    </p>
+
+    <p class="question-callout">
+      But what exactly should the model predict?
+      The waveform? Acoustic features? Or a learned representation?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       03 — CPC
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      03 — CPC
+    </div>
+
+    <h2>
+      Contrastive Predictive<br>
+      Coding.
+    </h2>
+
+    <p>
+      Contrastive Predictive Coding, or CPC, turns future
+      prediction into a contrastive learning problem.
+    </p>
+
+    <p>
+      An encoder transforms the acoustic input into latent
+      representations:
+    </p>
+
+    <div class="equation">
+      \[
+      x_t \longrightarrow z_t
+      \]
+    </div>
+
+    <p>
+      An autoregressive context network summarizes the past:
+    </p>
+
+    <div class="equation">
+      \[
+      z_{1:t}
+      \longrightarrow
+      c_t
+      \]
+    </div>
+
+    <p>
+      The model then tries to identify the correct future latent
+      representation among several candidates:
+    </p>
+
+    <div class="equation">
+      \[
+      c_t
+      \longrightarrow
+      \hat{z}_{t+k}
+      \]
+    </div>
+
+    <p>
+      An InfoNCE-style objective can be written as:
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}_{\mathrm{NCE}}
+      =
+      -\log
+      \frac{
+        \exp
+        \left(
+          \operatorname{sim}(c_t,z_{t+k}^{+})/\tau
+        \right)
+      }{
+        \displaystyle
+        \sum_{z\in\mathcal{Q}_t}
+        \exp
+        \left(
+          \operatorname{sim}(c_t,z)/\tau
+        \right)
+      }
+      \]
+    </div>
+
+    <p>
+      The positive example is the actual future representation.
+      The other candidates act as negatives.
+    </p>
+
+    <p class="question-callout">
+      Why compare against negatives at all?
+      Why not simply predict the future directly?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       04 — APC
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      04 — APC
+    </div>
+
+    <h2>
+      Predict the future<br>
+      without contrastive negatives.
+    </h2>
+
+    <p>
+      Autoregressive Predictive Coding, or APC, takes a simpler
+      predictive view.
+    </p>
+
+    <p>
+      Given acoustic observations up to time \(t\), the model
+      predicts a future acoustic representation.
+    </p>
+
+    <div class="equation">
+      \[
+      x_{1:t}
+      \longrightarrow
+      h_t
+      \longrightarrow
+      \hat{x}_{t+k}
+      \]
+    </div>
+
+    <p>
+      The prediction can be trained against the actual future
+      acoustic feature using a regression objective.
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}_{\mathrm{APC}}
+      =
+      \left\|
+      x_{t+k}
+      -
+      \hat{x}_{t+k}
+      \right\|_2^2
+      \]
+    </div>
+
+    <p>
+      CPC and APC therefore share a basic intuition:
+      future prediction forces the representation to capture
+      useful temporal structure.
+    </p>
+
+    <p class="question-callout">
+      But if the target itself is an acoustic feature vector,
+      are we learning the representation we really want?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       05 — WAV2VEC
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      05 — WAV2VEC
+    </div>
+
+    <h2>
+      What if we predict<br>
+      learned speech representations?
+    </h2>
+
+    <p>
+      The original wav2vec formulation moves closer to the modern
+      speech SSL architecture.
+    </p>
+
+    <p>
+      The raw waveform is first processed by a convolutional
+      feature encoder:
+    </p>
+
+    <div class="equation">
+      \[
+      x
+      \longrightarrow
+      \mathrm{CNN}
+      \longrightarrow
+      z_{1:T}
+      \]
+    </div>
+
+    <p>
+      These latent representations are then processed by a
+      context network:
+    </p>
+
+    <div class="equation">
+      \[
+      z_{1:T}
+      \longrightarrow
+      \mathrm{ContextNetwork}
+      \longrightarrow
+      c_{1:T}
+      \]
+    </div>
+
+    <p>
+      The model predicts future latent representations using
+      contrastive learning.
+    </p>
+
+    <p class="question-callout">
+      But now we have another problem:
+      what should the target representation look like?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       06 — QUANTIZATION
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      06 — QUANTIZATION
+    </div>
+
+    <h2>
+      What if speech had<br>
+      discrete latent units?
+    </h2>
+
+    <p>
+      Quantization maps a continuous latent representation to
+      a discrete entry from a learned codebook.
+    </p>
+
+    <div class="equation">
+      \[
+      z_t
+      \longrightarrow
+      \mathrm{Quantizer}
+      \longrightarrow
+      q_t
+      \]
+    </div>
+
+    <p>
+      Imagine a codebook containing \(V\) learned vectors:
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{E}
+      =
+      \left\{
+      e_1,e_2,\ldots,e_V
+      \right\}
+      \]
+    </div>
+
+    <p>
+      The quantizer chooses one or more entries to represent the
+      latent speech representation.
+    </p>
+
+    <p>
+      We have therefore introduced a discrete target space instead
+      of asking the model to reconstruct an arbitrary continuous
+      acoustic vector.
+    </p>
+
+    <p class="question-callout">
+      But selecting a discrete code is not differentiable.
+      How do we train the codebook end-to-end?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE — CODEBOOK
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        Latent representation → codebook → quantized target
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       07 — GUMBEL SOFTMAX
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      07 — GUMBEL-SOFTMAX
+    </div>
+
+    <h2>
+      How do we backpropagate<br>
+      through a discrete choice?
+    </h2>
+
+    <p>
+      A categorical selection is discrete.
+      A naive argmax would block ordinary gradient propagation.
+    </p>
+
+    <p>
+      Gumbel-Softmax provides a differentiable approximation
+      to categorical sampling.
+    </p>
+
+    <div class="equation">
+      \[
+      p_v
+      =
+      \frac{
+        \exp\left((l_v+g_v)/\tau\right)
+      }{
+        \displaystyle
+        \sum_j
+        \exp\left((l_j+g_j)/\tau\right)
+      }
+      \]
+    </div>
+
+    <p>
+      Here \(l_v\) represents the logits, \(g_v\) is Gumbel noise,
+      and \(\tau\) is the temperature.
+    </p>
+
+    <p>
+      As the temperature decreases, the distribution becomes
+      increasingly close to a one-hot categorical selection.
+    </p>
+
+    <p>
+      A straight-through formulation can use a hard discrete
+      selection during the forward pass while retaining a
+      differentiable approximation for gradient computation.
+    </p>
+
+    <div class="equation">
+      \[
+      \text{forward: hard selection}
+      \qquad
+      \text{backward: soft gradient}
+      \]
+    </div>
+
+    <p class="question-callout">
+      Now I have a discrete representation.
+      Can I make it useful as a prediction target?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       08 — WAV2VEC 2.0
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      08 — WAV2VEC 2.0
+    </div>
+
+    <h2>
+      What if we mask<br>
+      the speech itself?
+    </h2>
+
+    <p>
+      wav2vec 2.0 makes a major architectural shift:
+      it operates directly on raw waveform input and introduces
+      masking in the latent representation.
+    </p>
+
+    <div class="equation">
+      \[
+      x
+      \longrightarrow
+      \mathrm{CNN}
+      \longrightarrow
+      z_{1:T}
+      \]
+    </div>
+
+    <p>
+      Some latent time steps are masked before being passed
+      through the Transformer context network.
+    </p>
+
+    <div class="equation">
+      \[
+      \tilde{z}_{1:T}
+      \longrightarrow
+      \mathrm{Transformer}
+      \longrightarrow
+      c_{1:T}
+      \]
+    </div>
+
+    <p>
+      Meanwhile, the corresponding unmasked latent representation
+      is passed through the quantizer:
+    </p>
+
+    <div class="equation">
+      \[
+      z_t
+      \longrightarrow
+      \mathrm{Quantizer}
+      \longrightarrow
+      q_t
+      \]
+    </div>
+
+    <p>
+      The Transformer must therefore use surrounding context to
+      identify the correct quantized target at masked positions.
+    </p>
+
+    <p class="question-callout">
+      The context network sees the masked sequence,
+      while the target is constructed from the original latent.
+      Can the model recover what was hidden?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE — WAV2VEC 2
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        wav2vec 2.0:
+        CNN feature encoder → masking → Transformer →
+        quantized prediction targets
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       09 — PRODUCT QUANTIZATION
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      09 — PRODUCT QUANTIZATION
+    </div>
+
+    <h2>
+      One codebook<br>
+      or several?
+    </h2>
+
+    <p>
+      wav2vec 2.0 uses product quantization.
+      Instead of choosing one code from one enormous codebook,
+      the representation is divided across multiple codebook groups.
+    </p>
+
+    <p>
+      For codebook group \(g\), we have:
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{E}^{(g)}
+      =
+      \left\{
+      e_1^{(g)},
+      e_2^{(g)},
+      \ldots,
+      e_V^{(g)}
+      \right\}
+      \]
+    </div>
+
+    <p>
+      Each group selects a code and the selected entries are
+      combined to construct the quantized representation.
+    </p>
+
+    <div class="equation">
+      \[
+      q_t
+      =
+      \operatorname{Concat}
+      \left(
+      e_{v_1}^{(1)},
+      e_{v_2}^{(2)},
+      \ldots,
+      e_{v_G}^{(G)}
+      \right)
+      \]
+    </div>
+
+    <p class="question-callout">
+      But if the model can keep using only a tiny fraction
+      of the codebook, what stops the representation from collapsing?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       10 — WAV2VEC 2 LOSS
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      10 — THE WAV2VEC 2.0 OBJECTIVE
+    </div>
+
+    <h2>
+      What exactly<br>
+      are we optimizing?
+    </h2>
+
+    <p>
+      At a masked time step, the contextual representation
+      \(c_t\) must identify the correct quantized target \(q_t\)
+      among distractors.
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}_{m}
+      =
+      -\log
+      \frac{
+        \exp
+        \left(
+          \operatorname{sim}(c_t,q_t)/\kappa
+        \right)
+      }{
+        \displaystyle
+        \sum_{q\in\mathcal{Q}_t}
+        \exp
+        \left(
+          \operatorname{sim}(c_t,q)/\kappa
+        \right)
+      }
+      \]
+    </div>
+
+    <p>
+      The positive is the correct quantized representation.
+      The remaining candidates act as negatives.
+    </p>
+
+    <p>
+      A diversity objective encourages effective use of the
+      available codebook entries.
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}
+      =
+      \mathcal{L}_{m}
+      +
+      \alpha
+      \mathcal{L}_{d}
+      \]
+    </div>
+
+    <p>
+      During supervised ASR fine-tuning, the pretrained network
+      can subsequently be optimized using a CTC objective.
+    </p>
+
+    <p class="question-callout">
+      The architecture works extremely well.
+      But are randomly sampled negatives always good negatives?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       11 — CCC WAV2VEC
+       ===================================================== -->
+
+  <section class="article-section lab-section">
+
+    <div class="question-number">
+      11 — FROM OUR LAB / CCC-WAV2VEC 2.0
+    </div>
+
+    <h2>
+      Are all negatives<br>
+      really negative?
+    </h2>
+
+    <p>
+      CCC-wav2vec 2.0 starts from a very specific observation:
+      speech is quasi-stationary.
+    </p>
+
+    <p>
+      Nearby acoustic frames can therefore be highly similar.
+      A randomly selected negative may not be a particularly
+      informative negative.
+    </p>
+
+    <p>
+      CCC introduces clustering to identify highly similar
+      representations and reduce the influence of such
+      weak negatives.
+    </p>
+
+    <div class="equation">
+      \[
+      z
+      \longrightarrow
+      \mathrm{Clustering}
+      \longrightarrow
+      \text{negative structure}
+      \]
+    </div>
+
+    <p>
+      The method also introduces augmentation-based
+      cross-contrastive learning.
+    </p>
+
+    <p>
+      The original and augmented versions of the same speech
+      provide two views of the underlying content.
+    </p>
+
+    <div class="equation">
+      \[
+      c(x)
+      \leftrightarrow
+      q(\mathcal{A}(x))
+      \]
+    </div>
+
+    <div class="equation">
+      \[
+      c(\mathcal{A}(x))
+      \leftrightarrow
+      q(x)
+      \]
+    </div>
+
+    <p>
+      The idea is therefore to encourage representations to remain
+      consistent across acoustically different views of the same
+      speech.
+    </p>
+
+    <p class="question-callout">
+      If augmentation changes the acoustics but should not change
+      the underlying speech representation, shouldn't the SSL
+      objective explicitly enforce that invariance?
+    </p>
+
+    <p class="lab-note">
+      CCC-wav2vec 2.0 was introduced by researchers from our lab
+      and accepted at IEEE SLT 2022.
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE — CCC
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        CCC-wav2vec 2.0:
+        clustering + augmentation + cross-contrastive learning
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       12 — HUBERT
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      12 — HUBERT
+    </div>
+
+    <h2>
+      Do we really need<br>
+      a learned quantizer?
+    </h2>
+
+    <p>
+      HuBERT takes a strikingly different route.
+    </p>
+
+    <p>
+      Instead of learning the prediction targets directly through
+      the quantizer, it creates discrete pseudo-labels using
+      clustering.
+    </p>
+
+    <div class="equation">
+      \[
+      \text{acoustic features}
+      \longrightarrow
+      k\text{-means}
+      \longrightarrow
+      y_t
+      \]
+    </div>
+
+    <p>
+      The speech representation is then masked and the Transformer
+      is trained to predict the hidden pseudo-labels.
+    </p>
+
+    <div class="equation">
+      \[
+      \tilde{x}
+      \longrightarrow
+      \mathrm{Transformer}
+      \longrightarrow
+      p(y_t\mid\tilde{x})
+      \]
+    </div>
+
+    <p>
+      The masked prediction objective can be expressed as:
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}_{\mathrm{HuBERT}}
+      =
+      -
+      \sum_{t\in\mathcal{M}}
+      \log
+      p(y_t\mid\tilde{x})
+      \]
+    </div>
+
+    <p>
+      Here \(\mathcal{M}\) is the set of masked positions and
+      \(y_t\) is the cluster-derived pseudo-label.
+    </p>
+
+    <p class="question-callout">
+      But where did those pseudo-labels come from?
+      And can better representations produce better labels?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       13 — ITERATIVE HUBERT
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      13 — ITERATIVE REFINEMENT
+    </div>
+
+    <h2>
+      Can the representation<br>
+      improve its own targets?
+    </h2>
+
+    <p>
+      This is one of the most interesting ideas in HuBERT.
+    </p>
+
+    <p>
+      Initial clustering can produce relatively crude acoustic
+      units. After pretraining, however, the model has learned
+      a richer representation.
+    </p>
+
+    <p>
+      Those improved representations can then be clustered again.
+    </p>
+
+    <div class="equation">
+      \[
+      \text{features}
+      \rightarrow
+      \text{clusters}
+      \rightarrow
+      \text{pseudo-labels}
+      \rightarrow
+      \text{SSL training}
+      \rightarrow
+      \text{better features}
+      \rightarrow
+      \text{new clusters}
+      \]
+    </div>
+
+    <p class="question-callout">
+      What if self-supervised learning is not just learning from
+      labels we already have, but progressively improving the
+      labels themselves?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       14 — DATA2VEC
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      14 — DATA2VEC
+    </div>
+
+    <h2>
+      Why make the target<br>
+      discrete at all?
+    </h2>
+
+    <p>
+      data2vec takes another conceptual step.
+    </p>
+
+    <p>
+      Instead of predicting discrete acoustic units, the student
+      predicts continuous contextual representations produced by
+      a teacher network.
+    </p>
+
+    <div class="equation">
+      \[
+      x
+      \longrightarrow
+      \mathrm{Teacher}
+      \longrightarrow
+      y
+      \]
+    </div>
+
+    <div class="equation">
+      \[
+      \tilde{x}
+      \longrightarrow
+      \mathrm{Student}
+      \longrightarrow
+      \hat{y}
+      \]
+    </div>
+
+    <p>
+      The teacher sees an unmasked view while the student operates
+      on a masked view.
+    </p>
+
+    <p>
+      The teacher is updated through an exponential moving average
+      rather than ordinary backpropagation.
+    </p>
+
+    <div class="equation">
+      \[
+      \theta_{\mathrm{teacher}}
+      \leftarrow
+      \lambda
+      \theta_{\mathrm{teacher}}
+      +
+      (1-\lambda)
+      \theta_{\mathrm{student}}
+      \]
+    </div>
+
+    <p>
+      The objective is therefore representation matching.
+    </p>
+
+    <div class="equation">
+      \[
+      \mathcal{L}_{\mathrm{data2vec}}
+      =
+      D
+      \left(
+      \hat{y},
+      y
+      \right)
+      \]
+    </div>
+
+    <p class="question-callout">
+      We just spent several models designing better discrete
+      targets. What happens if I remove the discrete bottleneck
+      completely?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE — DATA2VEC
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        data2vec:
+        masked student + contextual teacher
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       15 — DATA2VEC-AQC
+       ===================================================== -->
+
+  <section class="article-section lab-section">
+
+    <div class="question-number">
+      15 — FROM OUR LAB / DATA2VEC-AQC
+    </div>
+
+    <h2>
+      What if discrete and<br>
+      continuous targets can coexist?
+    </h2>
+
+    <p>
+      data2vec removes the explicit discrete target.
+      data2vec-AQC asks whether quantization and clustering can
+      still provide useful additional information within the
+      teacher-student framework.
+    </p>
+
+    <div class="method-grid">
+
+      <div class="method-card">
+
+        <div class="method-label">
+          A
+        </div>
+
+        <h3>
+          Augmentation
+        </h3>
+
+        <p>
+          Create different acoustic views of the same underlying
+          speech content.
+        </p>
+
+      </div>
+
+
+      <div class="method-card">
+
+        <div class="method-label">
+          Q
+        </div>
+
+        <h3>
+          Quantization
+        </h3>
+
+        <p>
+          Introduce discrete representations as an additional
+          source of structure.
+        </p>
+
+      </div>
+
+
+      <div class="method-card">
+
+        <div class="method-label">
+          C
+        </div>
+
+        <h3>
+          Clustering
+        </h3>
+
+        <p>
+          Discover groups in representation space that can provide
+          additional pseudo-supervision.
+        </p>
+
+      </div>
+
+
+      <div class="method-card">
+
+        <div class="method-label">
+          OBJECTIVE
+        </div>
+
+        <h3>
+          Cross-Contrastive Learning
+        </h3>
+
+        <p>
+          Encourage consistency across the resulting views and
+          representation types.
+        </p>
+
+      </div>
+
+    </div>
+
+    <p>
+      The interesting part is not simply adding three modules.
+      It is the interaction between them inside the
+      teacher-student framework.
+    </p>
+
+    <div class="equation">
+      \[
+      \mathrm{data2vec}
+      +
+      \mathrm{Augmentation}
+      +
+      \mathrm{Quantization}
+      +
+      \mathrm{Clustering}
+      +
+      \mathrm{CrossContrastive}
+      \]
+    </div>
+
+    <p class="question-callout">
+      Maybe continuous and discrete representations are not
+      competing descriptions of speech.
+      Maybe they can provide complementary views of it.
+    </p>
+
+    <p class="lab-note">
+      data2vec-AQC was introduced by researchers from our lab
+      and accepted at ICASSP 2023.
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE — DATA2VEC AQC
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        data2vec-AQC:
+        teacher / student + augmentation +
+        quantization + clustering
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       16 — WAVLM
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      16 — WAVLM
+    </div>
+
+    <h2>
+      Should SSL learn<br>
+      more than phonetics?
+    </h2>
+
+    <p>
+      A speech representation is not useful only because it knows
+      which phoneme is being spoken.
+    </p>
+
+    <p>
+      Downstream tasks may depend on speaker identity, acoustic
+      environment, channel characteristics and other information
+      present in speech.
+    </p>
+
+    <p>
+      WavLM extends the masked speech representation framework
+      toward richer speech representations.
+    </p>
+
+    <p>
+      A particularly important idea is denoising-oriented training,
+      including mixtures of speech signals and acoustic
+      perturbations.
+    </p>
+
+    <div class="equation">
+      \[
+      x_{\mathrm{clean}}
+      +
+      x_{\mathrm{noise}}
+      \longrightarrow
+      \tilde{x}
+      \longrightarrow
+      \mathrm{Encoder}
+      \longrightarrow
+      h
+      \]
+    </div>
+
+    <p class="question-callout">
+      Can the representation remain useful when the acoustic
+      conditions change, while still preserving the information
+      required by downstream speech tasks?
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       17 — BROADER AUDIO SSL
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      17 — WHERE THE IDEA GOES NEXT
+    </div>
+
+    <h2>
+      Is speech SSL becoming<br>
+      masked representation learning?
+    </h2>
+
+    <p>
+      The ideas above connect to a broader family of masked
+      representation learning approaches.
+    </p>
+
+    <p>
+      Models such as BEATs and AudioMAE explore related ideas
+      around masked acoustic or audio representation learning.
+    </p>
+
+    <div class="equation">
+      \[
+      \text{audio}
+      \longrightarrow
+      \text{mask}
+      \longrightarrow
+      \text{context}
+      \longrightarrow
+      \text{predict representation}
+      \]
+    </div>
+
+    <p class="question-callout">
+      The interesting question is no longer simply
+      "what is masked?"
+      It is:
+      <br><br>
+      <em>
+        What representation should the model be forced to predict?
+      </em>
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       18 — TARGET EVOLUTION
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      18 — THE TARGET EVOLUTION
+    </div>
+
+    <h2>
+      The real story may be<br>
+      the target.
+    </h2>
+
+    <div class="comparison-table">
+
+      <div class="comparison-row comparison-header">
+        <div>MODEL</div>
+        <div>TARGET / PREDICTION</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>CPC</div>
+        <div>Future latent representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>APC</div>
+        <div>Future acoustic representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>wav2vec</div>
+        <div>Learned / quantized latent representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>wav2vec 2.0</div>
+        <div>Masked quantized latent representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>HuBERT</div>
+        <div>Cluster-derived discrete pseudo-label</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>data2vec</div>
+        <div>Continuous contextual teacher representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>WavLM</div>
+        <div>Robust contextual speech representation</div>
+      </div>
+
+      <div class="comparison-row">
+        <div>CCC-wav2vec 2.0</div>
+        <div>
+          Quantized targets + cross-view contrastive learning
+        </div>
+      </div>
+
+      <div class="comparison-row">
+        <div>data2vec-AQC</div>
+        <div>
+          Continuous teacher targets + augmentation +
+          quantization + clustering
+        </div>
+      </div>
+
+    </div>
+
+    <p class="question-callout">
+      So perhaps the history of speech SSL is partly a history
+      of asking:
+      <br><br>
+      <strong>
+        What is the right target?
+      </strong>
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       19 — REPRESENTATION
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      19 — WHAT DID WE ACTUALLY LEARN?
+    </div>
+
+    <h2>
+      A good SSL loss is not<br>
+      the final objective.
+    </h2>
+
+    <p>
+      Self-supervised pretraining is useful because the learned
+      representation can later be transferred to downstream tasks.
+    </p>
+
+    <p>
+      The representation may encode several factors simultaneously:
+      phonetic information, lexical information, speaker information,
+      prosody and acoustic environment.
+    </p>
+
+    <p>
+      Different SSL objectives therefore induce different
+      geometries in representation space.
+    </p>
+
+    <div class="equation">
+      \[
+      x
+      \xrightarrow{\text{SSL objective}}
+      h
+      \xrightarrow{\text{downstream task}}
+      \hat{y}
+      \]
+    </div>
+
+    <p class="question-callout">
+      If two SSL models achieve similar ASR performance,
+      does that mean they learned the same representation?
+    </p>
+
+    <p>
+      Probably not.
+      Downstream performance is only one projection of what the
+      representation has learned.
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FIGURE
+       ===================================================== -->
+
+  <figure class="article-figure">
+
+    <div class="figure-placeholder large">
+      <span>HAND-DRAWN FIGURE PLACEHOLDER</span>
+
+      <p>
+        Same speech → different SSL objectives →
+        different representation geometry
+      </p>
+    </div>
+
+  </figure>
+
+
+  <!-- =====================================================
+       20 — FINAL MAP
+       ===================================================== -->
+
+  <section class="article-section">
+
+    <div class="question-number">
+      20 — THE MAP
+    </div>
+
+    <h2>
+      From predicting the future<br>
+      to learning speech itself.
+    </h2>
+
+    <div class="equation map-equation">
+
+      \[
+      \begin{aligned}
+      \text{Unlabelled speech}
+      &\longrightarrow
+      \text{CPC}
+      \quad
+      \text{future latent prediction}
+      \\[12pt]
+      &\longrightarrow
+      \text{APC}
+      \quad
+      \text{future acoustic prediction}
+      \\[12pt]
+      &\longrightarrow
+      \text{wav2vec}
+      \quad
+      \text{learned quantized representations}
+      \\[12pt]
+      &\longrightarrow
+      \text{wav2vec 2.0}
+      \quad
+      \text{masked quantized prediction}
+      \\[12pt]
+      &\longrightarrow
+      \text{CCC-wav2vec 2.0}
+      \quad
+      \text{better negatives + cross-view consistency}
+      \\[12pt]
+      &\longrightarrow
+      \text{HuBERT}
+      \quad
+      \text{clustered pseudo-label prediction}
+      \\[12pt]
+      &\longrightarrow
+      \text{data2vec}
+      \quad
+      \text{continuous teacher targets}
+      \\[12pt]
+      &\longrightarrow
+      \text{data2vec-AQC}
+      \quad
+      \text{continuous + discrete complementary views}
+      \\[12pt]
+      &\longrightarrow
+      \text{WavLM}
+      \quad
+      \text{robust speech representations}
+      \end{aligned}
+      \]
+      
+    </div>
+
+    <p class="question-callout">
+      We started with a simple question:
+      <br><br>
+
+      <em>
+        Can speech teach itself?
+      </em>
+
+      <br><br>
+
+      Perhaps the deeper question is:
+      <br><br>
+
+      <strong>
+        What information should a model be forced to preserve
+        when nobody tells it what the answer is?
+      </strong>
+    </p>
+
+  </section>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+
+  <nav class="article-footer-nav">
+
+    <a href="../discover.html">
+      ← BACK TO DISCOVER SPEECH
+    </a>
+
+  </nav>
+
+</main>
+
+</body>
+</html>

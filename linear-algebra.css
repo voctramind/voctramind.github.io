@@ -1,0 +1,105 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; min-height: 100%; }
+body {
+  font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #24232b;
+  background: #fff;
+}
+.la-page { min-height: 100vh; padding: 28px 6vw 76px; }
+.la-nav { margin-bottom: 30px; }
+.la-nav a {
+  color: #1d1d1b; text-decoration: none; font-size: .78rem;
+  letter-spacing: .12em; transition: opacity .2s ease;
+}
+.la-nav a:hover { opacity: .55; }
+.la-header { max-width: 760px; margin: 36px auto 48px; text-align: center; }
+.la-kicker, .la-path-label {
+  color: #8b86a6; font-size: .67rem; font-weight: 600;
+  letter-spacing: .23em;
+}
+.la-header h1 {
+  margin: 17px 0 0; font-size: clamp(46px, 6vw, 76px);
+  line-height: 1.02; font-weight: 500; letter-spacing: -.055em;
+  background: linear-gradient(90deg, #d32dff, #6d65ff, #19cfff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.la-header p {
+  max-width: 590px; margin: 22px auto 0; color: #686a74;
+  font-size: 1.02rem; line-height: 1.7;
+}
+.la-path-section { max-width: 850px; margin: 0 auto; }
+.la-path-intro {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 24px;
+}
+.la-path-hint { color: #92919a; font-size: .78rem; }
+.la-path {
+  position: relative; width: 100%; max-width: 720px;
+  margin: 0 auto; padding: 8px 0 12px 42px;
+}
+.la-path::before {
+  content: ""; position: absolute; left: 15px; top: 14px; bottom: 18px;
+  width: 2px; background: linear-gradient(180deg, #19cfff 0%, #6d65ff 52%, #d32dff 100%);
+  opacity: .55;
+}
+.la-step {
+  position: relative; display: flex; align-items: center; gap: 18px;
+  width: 100%; min-height: 78px; margin: 0 0 14px; padding: 15px 20px;
+  text-align: left; border: 1px solid rgba(109,101,255,.22);
+  border-radius: 11px; background: #fff; color: #45434e;
+  font: inherit; cursor: pointer;
+  transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+.la-step::before {
+  content: ""; position: absolute; left: -35px; top: 50%;
+  width: 12px; height: 12px; border-radius: 50%;
+  transform: translateY(-50%); background: #fff;
+  border: 2px solid #8c86ed; z-index: 1;
+}
+.la-step:hover { transform: translateX(3px); border-color: #8b82ff; }
+.la-step.is-active {
+  border-color: #6d65ff;
+  box-shadow: 0 7px 24px rgba(109,101,255,.10);
+  background: linear-gradient(100deg, #fcfbff, #fff);
+}
+.la-step.is-active::before { background: #6d65ff; box-shadow: 0 0 0 4px rgba(109,101,255,.12); }
+.la-step-number {
+  flex: 0 0 34px; color: #9b96bd; font-size: .72rem;
+  letter-spacing: .08em; font-weight: 600;
+}
+.la-step-copy { display: flex; flex-direction: column; gap: 5px; }
+.la-step-title { font-size: .96rem; font-weight: 600; letter-spacing: .01em; }
+.la-step-subtitle { color: #92909b; font-size: .78rem; line-height: 1.45; }
+.la-step-mark { margin-left: auto; color: #8b82ed; font-size: 1.1rem; }
+.la-empty-state {
+  padding: 30px 24px; border: 1px dashed rgba(109,101,255,.32);
+  border-radius: 12px; color: #898795; text-align: center;
+  font-size: .9rem; line-height: 1.6;
+}
+.la-topic-panel {
+  max-width: 720px; margin: 42px auto 0; padding: 28px 0 0;
+  border-top: 1px solid rgba(29,29,27,.14);
+}
+.la-topic-kicker { margin-bottom: 13px; color: #9691b0; font-size: .66rem; letter-spacing: .2em; }
+.la-topic-panel h2 {
+  margin: 0; font-size: clamp(1.7rem, 4vw, 2.7rem);
+  font-weight: 400; letter-spacing: -.04em;
+}
+.la-topic-panel p { max-width: 620px; margin-top: 15px; color: #777681; font-size: .98rem; line-height: 1.75; }
+.la-open-topic {
+  display: inline-flex; align-items: center; gap: 14px; margin-top: 12px;
+  padding: 11px 16px; border: 1px solid #8179ef; border-radius: 7px;
+  color: #6d65ff; text-decoration: none; font-size: .7rem;
+  font-weight: 600; letter-spacing: .13em;
+}
+.la-open-topic:hover { background: #f8f7ff; }
+@media (max-width: 600px) {
+  .la-page { padding: 24px 6vw 58px; }
+  .la-header { margin: 28px auto 38px; }
+  .la-path { padding-left: 35px; }
+  .la-path::before { left: 12px; }
+  .la-step { gap: 12px; padding: 13px 14px; }
+  .la-step::before { left: -29px; }
+  .la-step-title { font-size: .88rem; }
+  .la-path-intro { align-items: flex-start; flex-direction: column; gap: 8px; }
+}

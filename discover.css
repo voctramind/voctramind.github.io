@@ -1,0 +1,657 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/* ================================
+   PAGE
+   ================================ */
+
+.mechanics-page {
+  min-height: 100vh;
+  padding: 28px 6vw 70px;
+}
+
+
+/* ================================
+   NAVIGATION
+   ================================ */
+
+.mechanics-nav {
+  margin-bottom: 28px;
+}
+
+.mechanics-nav a {
+  text-decoration: none;
+  color: #1d1d1b;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  transition: opacity 0.25s ease;
+}
+
+.mechanics-nav a:hover {
+  opacity: 0.55;
+}
+
+
+/* ================================
+   HEADER
+   ================================ */
+
+.mechanics-header {
+  max-width: 760px;
+  margin: 30px auto 18px;
+  text-align: center;
+}
+
+.mechanics-header .section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: #9a8da8;
+  margin-bottom: 18px;
+}
+
+.mechanics-header h1 {
+  margin: 0;
+  font-size: clamp(46px, 6vw, 76px);
+  line-height: 1.02;
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+/* GLOBAL WEBSITE TITLE GRADIENT — UNCHANGED */
+
+.mechanics-header h1 span {
+  background: linear-gradient(
+    90deg,
+    #d32dff,
+    #6d65ff,
+    #19cfff
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.mechanics-header p {
+  margin: 24px auto 0;
+  max-width: 590px;
+
+  font-size: 17px;
+  line-height: 1.7;
+
+  color: #686a74;
+}
+
+
+/* ================================
+   KNOWLEDGE MAP
+   ================================ */
+
+.mechanics-web {
+  position: relative;
+  width: 100%;
+  min-height: 455px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+
+/* ================================
+   LAYERS
+   ================================ */
+
+#mechanicsLines {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 1;
+  pointer-events: none;
+}
+
+#mechanicsNodes {
+  position: absolute;
+  inset: 0;
+
+  z-index: 2;
+}
+
+
+/* ================================
+   CONNECTION LINES
+   ALWAYS DARK / VISIBLE
+   ================================ */
+
+.mechanics-line {
+  fill: none;
+
+  stroke-width: 1.35;
+  opacity: 0.82;
+
+  vector-effect: non-scaling-stroke;
+
+  transition: none;
+}
+
+/*
+   Active does NOT become darker.
+   This is deliberately identical to normal.
+*/
+
+.mechanics-line.active {
+  opacity: 0.82;
+  stroke-width: 1.35;
+}
+
+
+/* ================================
+   TRANSFORMER LINES
+   ================================ */
+
+.mechanics-line.family-transformer {
+  stroke: #a84dff;
+
+  filter:
+    drop-shadow(0 0 2px rgba(168, 77, 255, 0.30))
+    drop-shadow(0 0 6px rgba(168, 77, 255, 0.12));
+}
+
+.mechanics-line.family-transformer.active {
+  stroke: #a84dff;
+
+  filter:
+    drop-shadow(0 0 2px rgba(168, 77, 255, 0.30))
+    drop-shadow(0 0 6px rgba(168, 77, 255, 0.12));
+}
+
+
+/* ================================
+   SSM LINES
+   ================================ */
+
+.mechanics-line.family-ssm {
+  stroke: #35bce8;
+
+  filter:
+    drop-shadow(0 0 2px rgba(53, 188, 232, 0.30))
+    drop-shadow(0 0 6px rgba(53, 188, 232, 0.12));
+}
+
+.mechanics-line.family-ssm.active {
+  stroke: #35bce8;
+
+  filter:
+    drop-shadow(0 0 2px rgba(53, 188, 232, 0.30))
+    drop-shadow(0 0 6px rgba(53, 188, 232, 0.12));
+}
+
+
+/* ================================
+   FOUNDATIONS LINES
+   ================================ */
+
+.mechanics-line.family-foundations {
+  stroke: #858bea;
+
+  filter:
+    drop-shadow(0 0 2px rgba(133, 139, 234, 0.30))
+    drop-shadow(0 0 6px rgba(133, 139, 234, 0.12));
+}
+
+.mechanics-line.family-foundations.active {
+  stroke: #858bea;
+
+  filter:
+    drop-shadow(0 0 2px rgba(133, 139, 234, 0.30))
+    drop-shadow(0 0 6px rgba(133, 139, 234, 0.12));
+}
+
+
+/* ================================
+   GENERATIVE AI LINES
+   ================================ */
+
+.mechanics-line.family-generative {
+  stroke: #e2a0ce;
+
+  filter:
+    drop-shadow(0 0 2px rgba(226, 160, 206, 0.30))
+    drop-shadow(0 0 6px rgba(226, 160, 206, 0.12));
+}
+
+.mechanics-line.family-generative.active {
+  stroke: #e2a0ce;
+
+  filter:
+    drop-shadow(0 0 2px rgba(226, 160, 206, 0.30))
+    drop-shadow(0 0 6px rgba(226, 160, 206, 0.12));
+}
+
+
+/* ================================
+   FAMILY VARIABLES
+   ================================ */
+
+.mechanics-node.family-transformer {
+  --family-dark: #a84dff;
+  --family-soft: #f7efff;
+  --family-light: #fcf8ff;
+  --family-border: rgba(168, 77, 255, 0.34);
+}
+
+.mechanics-node.family-ssm {
+  --family-dark: #35bce8;
+  --family-soft: #eefaff;
+  --family-light: #f9fdff;
+  --family-border: rgba(53, 188, 232, 0.34);
+}
+
+.mechanics-node.family-foundations {
+  --family-dark: #7f86ed;
+  --family-soft: #f1f2ff;
+  --family-light: #fafaff;
+  --family-border: rgba(127, 134, 237, 0.34);
+}
+
+.mechanics-node.family-generative {
+  --family-dark: #e2a0ce;
+  --family-soft: #fdf4fa;
+  --family-light: #fffafd;
+  --family-border: rgba(226, 160, 206, 0.34);
+}
+
+
+/* ================================
+   BASE NODE
+   ================================ */
+
+.mechanics-node {
+  position: absolute;
+
+  transform: translate(-50%, -50%);
+
+  display: block;
+  width: max-content;
+
+  padding: 10px 16px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: #fff;
+
+  border: 1px solid var(--family-dark);
+  border-radius: 8px;
+
+  color: #555860;
+
+  font-family: inherit;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  z-index: 2;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+
+/* ================================
+   CHILD / TOPIC NODES
+   NO GLOW
+   ================================ */
+
+.mechanics-node.topic {
+  background: #fff;
+
+  border-color: var(--family-dark);
+
+  color: #555860;
+
+  box-shadow: none;
+}
+/* ================================
+   PUBLISHED RESEARCH MARKER
+   ================================ */
+
+.mechanics-node.research-topic::after {
+  content: "★";
+
+  position: absolute;
+  top: -10px;
+  right: -10px;
+
+  font-size: 0.8rem;
+  line-height: 1;
+
+  color: #d6a62c;
+
+  text-shadow:
+    0 0 2px #FFFFFF,
+    0 0 5px #FFF4C4,
+    0 0 9px #E8C75A,
+    0 0 16px rgba(218, 178, 62, 0.85),
+    0 0 26px rgba(190, 145, 35, 0.45);
+  pointer-events: none;
+
+  animation: researchStar 2.2s ease-in-out infinite;
+}
+
+
+/* ================================
+   RESEARCH LEGEND STAR
+   SAME CHROME-GOLD AS RESEARCH NODES
+   ================================ */
+
+.research-star {
+  color: #d6a62c;
+
+  text-shadow:
+    0 0 2px #FFFFFF,
+    0 0 5px #FFF4C4,
+    0 0 9px #E8C75A,
+    0 0 16px rgba(218, 178, 62, 0.85),
+    0 0 26px rgba(190, 145, 35, 0.45);
+
+  transform-origin: center;
+
+  animation: researchStar 2.2s ease-in-out infinite;
+}
+
+/* ================================
+   CHILD HOVER
+   ================================ */
+
+.mechanics-node.topic:hover {
+  transform: translate(-50%, -50%) translateY(-2px);
+
+  background: #fff;
+
+  border-color: var(--family-dark);
+
+  color: #1d1d1b;
+
+  box-shadow: none;
+}
+
+
+/* ================================
+   CHILD ACTIVE
+   ================================ */
+
+.mechanics-node.topic.active {
+  background: #fff;
+
+  border-color: var(--family-dark);
+
+  color: #1d1d1b;
+
+  box-shadow: none;
+}
+
+/* ================================
+   FAMILY / CATEGORY PARENTS
+   ================================ */
+
+.mechanics-node.category {
+  background: #fff;
+
+  border: 1px solid var(--family-dark);
+
+  color: var(--family-dark);
+
+  padding: 12px 20px;
+
+  border-radius: 9px;
+
+  font-size: 0.70rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+
+  opacity: 1;
+
+  z-index: 5;
+
+  box-shadow:
+    0 0 10px var(--family-border),
+    0 0 28px var(--family-border),
+    0 0 46px var(--family-border),
+    0 6px 22px rgba(29, 29, 27, 0.045);
+}
+
+
+/* ================================
+   TRANSFORMER PARENT
+   ================================ */
+
+.mechanics-node.family-transformer.category {
+  padding: 14px 24px;
+
+  font-size: 0.75rem;
+
+  box-shadow:
+    0 0 11px rgba(168, 77, 255, 0.40),
+    0 0 30px rgba(168, 77, 255, 0.25),
+    0 0 50px rgba(168, 77, 255, 0.13),
+    0 7px 24px rgba(29, 29, 27, 0.055);
+}
+
+
+/* ================================
+   SSM PARENT
+   ================================ */
+
+.mechanics-node.family-ssm.category {
+  box-shadow:
+    0 0 11px rgba(53, 188, 232, 0.40),
+    0 0 30px rgba(53, 188, 232, 0.25),
+    0 0 50px rgba(53, 188, 232, 0.13),
+    0 6px 22px rgba(29, 29, 27, 0.045);
+}
+
+
+/* ================================
+   FOUNDATIONS PARENT
+   ================================ */
+
+.mechanics-node.family-foundations.category {
+  box-shadow:
+    0 0 11px rgba(127, 134, 237, 0.38),
+    0 0 30px rgba(127, 134, 237, 0.23),
+    0 0 50px rgba(127, 134, 237, 0.12),
+    0 6px 22px rgba(29, 29, 27, 0.045);
+}
+
+
+/* ================================
+   GENERATIVE AI PARENT
+   ================================ */
+
+.mechanics-node.family-generative.category {
+  box-shadow:
+    0 0 11px rgba(226, 160, 206, 0.38),
+    0 0 30px rgba(226, 160, 206, 0.23),
+    0 0 50px rgba(226, 160, 206, 0.12),
+    0 6px 22px rgba(29, 29, 27, 0.045);
+}
+
+
+/* ================================
+   PARENTS — NO HOVER EFFECT
+   ================================ */
+
+/*
+   Explicitly cancel hover behaviour.
+   Clicking/hovering the parent produces
+   exactly the same visual appearance.
+*/
+
+.mechanics-node.category:hover,
+.mechanics-node.category.active {
+  transform: translate(-50%, -50%);
+
+  background: #fff;
+
+  border-color: var(--family-dark);
+
+  color: var(--family-dark);
+}
+
+
+/* ================================
+   TOPIC PANEL
+   ================================ */
+
+.mechanics-topic-panel {
+  max-width: 720px;
+  margin: 34px auto 0;
+  padding: 30px 0 0;
+
+  border-top: 1px solid rgba(29, 29, 27, 0.14);
+}
+
+.mechanics-topic-kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  opacity: 0.45;
+  margin-bottom: 14px;
+}
+
+.mechanics-topic-panel h2 {
+  margin: 0;
+
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.mechanics-topic-panel p {
+  max-width: 620px;
+  margin-top: 16px;
+
+  font-size: 1rem;
+  line-height: 1.75;
+  opacity: 0.62;
+}
+
+
+
+
+
+/* ================================
+   RESEARCH LEGEND
+   ================================ */
+
+.research-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 3px;
+
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+
+  opacity: 0.9;
+}
+
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 800px) {
+
+  .mechanics-page {
+    padding: 24px 6vw 60px;
+  }
+
+  .mechanics-nav {
+    margin-bottom: 38px;
+  }
+
+  .mechanics-header {
+    margin-top: 24px;
+    margin-bottom: 30px;
+  }
+
+  .mechanics-web {
+    min-height: 600px;
+  }
+
+  .mechanics-node {
+    font-size: 0.68rem;
+    padding: 9px 12px;
+  }
+
+  .mechanics-node.category {
+    padding: 10px 15px;
+    font-size: 0.64rem;
+  }
+
+  .mechanics-node.family-transformer.category {
+    padding: 12px 18px;
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .mechanics-header h1 {
+    font-size: 3.2rem;
+  }
+
+  .mechanics-web {
+    min-height: 700px;
+  }
+
+  .mechanics-topic-panel {
+    margin-top: 30px;
+  }
+}
+
+
+/* =========================================================
+   DISCOVER SPEECH — SAME MODEL MECHANICS DESIGN SYSTEM
+   Layout sizing only; the visual language above is unchanged.
+   ========================================================= */
+.mechanics-web {
+  min-height: 720px;
+}
+
+@media (max-width: 800px) {
+  .mechanics-web {
+    min-height: 1040px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mechanics-web {
+    min-height: 1260px;
+  }
+}
+
+@media (max-width: 800px) {
+  .mechanics-node { max-width: 46vw; white-space: normal; text-align: center; }
+  .mechanics-node.category { max-width: 54vw; }
+}

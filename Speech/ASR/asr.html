@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <title>ASR — VoctraMind</title>
+  <link rel="stylesheet" href="asr.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\\\(','\\\\)']], displayMath: [['\\\\[','\\\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+
+<body>
+
+<aside class="lora-map">
+  <div class="map-kicker">SPEECH AI</div>
+  <div class="map-title">ASR</div>
+
+  <nav class="timeline" aria-label="ASR progression">
+    <a class="map-item" href="#foundations"><i class="map-dot"></i><strong>Foundations</strong><span>What an ASR system must model</span></a>
+    <a class="map-item" href="#architectures"><i class="map-dot"></i><strong>Architectures</strong><span>CTC to modern encoders</span></a>
+    <a class="map-item" href="#representations"><i class="map-dot"></i><strong>Speech Representations</strong><span>What the model sees</span></a>
+    <a class="map-item" href="#training"><i class="map-dot"></i><strong>Training</strong><span>Objectives and augmentation</span></a>
+    <a class="map-item" href="#decoding"><i class="map-dot"></i><strong>Decoding</strong><span>From scores to words</span></a>
+    <a class="map-item" href="#streaming"><i class="map-dot"></i><strong>Efficient / Streaming ASR</strong><span>Recognition under constraints</span></a>
+    <a class="map-item" href="#multilingual"><i class="map-dot"></i><strong>Multilingual ASR</strong><span>Across languages</span></a>
+    <a class="map-item" href="#multimodal"><i class="map-dot"></i><strong>Multimodal ASR</strong><span>Beyond audio</span></a>
+    <a class="map-item" href="#data"><i class="map-dot"></i><strong>Data</strong><span>Corpora, transcripts, alignment</span></a>
+    <a class="map-item" href="#evaluation"><i class="map-dot"></i><strong>Evaluation</strong><span>Quality and efficiency</span></a>
+  </nav>
+</aside>
+
+<main class="article-page">
+
+  <nav class="article-nav">
+    <a href="discover.html">← DISCOVER SPEECH</a>
+  </nav>
+
+  <header class="article-header">
+    <div class="section-label">SPEECH AI / AUTOMATIC SPEECH RECOGNITION</div>
+    <h1>How does a machine<br><span>turn speech into language?</span></h1>
+    <p class="article-intro">
+      From the foundations of recognition to CTC, transducers, attention,
+      streaming, multilingual and multimodal systems — a sequential journey
+      through modern ASR.
+    </p>
+  </header>
+
+  <section class="article-section" id="foundations">
+    <div class="question-number">01</div>
+    <h2>What does an ASR system actually have to model?</h2>
+    <p>Before choosing a neural architecture, it helps to separate the ingredients of the recognition problem.</p>
+
+    <div class="distinction-list">
+      <div><strong>ACOUSTIC MODELING</strong><span>Relating acoustic observations to linguistic units.</span></div>
+      <div><strong>LANGUAGE MODELING</strong><span>Representing which sequences of linguistic symbols are plausible.</span></div>
+      <div><strong>PRONUNCIATION / LEXICON</strong><span>Connecting linguistic units with their pronunciations.</span></div>
+      <div><strong>ALIGNMENT</strong><span>Relating a long sequence of acoustic frames to a shorter transcription.</span></div>
+    </div>
+
+    <p class="question-callout">The central difficulty is already visible: speech arrives as a dense temporal signal, while the transcript is a much shorter sequence of symbols.</p>
+  </section>
+
+  <section class="article-section" id="architectures">
+    <div class="question-number">02</div>
+    <h2>How did ASR architectures learn to handle that sequence?</h2>
+    <p>The architectural progression gives us several different answers to the alignment and sequence-modeling problem.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="ctc.html"><div class="card-kicker">ARCHITECTURE</div><h3>CTC</h3><p>Sequence recognition without requiring explicit frame-level alignment.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="rnnt.html"><div class="card-kicker">ARCHITECTURE</div><h3>RNN-T</h3><p>A transducer formulation that naturally supports incremental recognition.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="encoder-decoder.html"><div class="card-kicker">ARCHITECTURE</div><h3>Encoder–Decoder</h3><p>Attention-based sequence-to-sequence recognition.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="transformer.html"><div class="card-kicker">ARCHITECTURE</div><h3>Transformer</h3><p>Self-attention as the central sequence-modeling mechanism.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="conformer.html"><div class="card-kicker">ARCHITECTURE</div><h3>Conformer</h3><p>Combining convolution and self-attention for speech.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="e-branchformer.html"><div class="card-kicker">ARCHITECTURE</div><h3>E-Branchformer</h3><p>An efficient branch-based architecture for speech recognition.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="zipformer.html"><div class="card-kicker">ARCHITECTURE</div><h3>Zipformer</h3><p>An efficiency-oriented architecture for practical ASR.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+
+    <p class="question-callout">Different architectures solve the same broad recognition problem under different assumptions about alignment, context, computation, and latency.</p>
+  </section>
+
+  <section class="article-section" id="representations">
+    <div class="question-number">03</div>
+    <h2>What should the model see?</h2>
+    <p>Architecture is only one side of the system. The input representation determines what information is exposed to the recognizer.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="log-mel.html"><div class="card-kicker">REPRESENTATION</div><h3>Log-Mel Features</h3><p>A classical time-frequency representation widely used in speech recognition.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="learned-frontends.html"><div class="card-kicker">REPRESENTATION</div><h3>Learned Frontends</h3><p>Neural frontends that learn useful low-level representations.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="ssl-representations.html"><div class="card-kicker">REPRESENTATION</div><h3>SSL Representations</h3><p>Speech representations learned from large amounts of unlabeled audio.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="discrete-speech-tokens.html"><div class="card-kicker">REPRESENTATION</div><h3>Discrete Speech Tokens</h3><p>Quantized units that represent speech as sequences of discrete symbols.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+  </section>
+
+  <section class="article-section" id="training">
+    <div class="question-number">04</div>
+    <h2>How do we teach the recognizer?</h2>
+    <p>Training objectives define what counts as a useful prediction and how the model receives supervision.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="ctc-loss.html"><div class="card-kicker">OBJECTIVE</div><h3>CTC Loss</h3><p>Marginalizing over possible alignments between frames and labels.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="transducer-loss.html"><div class="card-kicker">OBJECTIVE</div><h3>Transducer Loss</h3><p>Training objective for transducer-based sequence prediction.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="attention-loss.html"><div class="card-kicker">OBJECTIVE</div><h3>Attention Loss</h3><p>Sequence-to-sequence supervision for encoder-decoder ASR.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="specaugment.html"><div class="card-kicker">AUGMENTATION</div><h3>SpecAugment</h3><p>Structured masking of speech features to improve robustness.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="multitask-learning.html"><div class="card-kicker">TRAINING</div><h3>Multi-task Learning</h3><p>Combining complementary prediction objectives during training.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+  </section>
+
+  <section class="article-section" id="decoding">
+    <div class="question-number">05</div>
+    <h2>Once the model scores possibilities, how do we choose a transcript?</h2>
+    <p>Recognition does not end when the neural network produces probabilities. A decoding strategy turns those scores into hypotheses.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="greedy-decoding.html"><div class="card-kicker">DECODING</div><h3>Greedy Decoding</h3><p>Selecting the locally highest-scoring output.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="beam-search.html"><div class="card-kicker">DECODING</div><h3>Beam Search</h3><p>Maintaining several candidate hypotheses instead of one.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="lm-rescoring.html"><div class="card-kicker">DECODING</div><h3>LM Rescoring</h3><p>Using language-model information to refine candidate hypotheses.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="streaming-decoding.html"><div class="card-kicker">DECODING</div><h3>Streaming Decoding</h3><p>Producing useful partial hypotheses while speech is still arriving.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+  </section>
+
+  <section class="article-section" id="streaming">
+    <div class="question-number">06</div>
+    <h2>What changes when ASR has to respond in real time?</h2>
+    <p>Practical ASR introduces constraints on causality, memory, computation, and response time.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="streaming-asr.html"><div class="card-kicker">SYSTEMS</div><h3>Streaming ASR</h3><p>Recognition under causal or limited-lookahead constraints.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="chunked-attention.html"><div class="card-kicker">ATTENTION</div><h3>Chunked Attention</h3><p>Restricting temporal context to manageable regions.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="efficient-transformers.html"><div class="card-kicker">EFFICIENCY</div><h3>Efficient Transformers</h3><p>Reducing memory and computation while preserving useful context.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="low-latency-asr.html"><div class="card-kicker">SYSTEMS</div><h3>Low-latency ASR</h3><p>Balancing recognition quality against response time.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+  </section>
+
+  <section class="article-section" id="multilingual">
+    <div class="question-number">07</div>
+    <h2>What happens when one recognizer has to understand many languages?</h2>
+    <p>Multilingual ASR introduces questions about shared representations, language conditioning, transfer, and code-switching.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="multilingual-training.html"><div class="card-kicker">MULTILINGUAL</div><h3>Multilingual Training</h3><p>Learning a recognition model across multiple languages.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="language-conditioning.html"><div class="card-kicker">MULTILINGUAL</div><h3>Language Conditioning</h3><p>Providing explicit language information to the recognizer.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="code-switching.html"><div class="card-kicker">MULTILINGUAL</div><h3>Code-switching</h3><p>Recognizing speech that moves between languages.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="indian-languages.html"><div class="card-kicker">MULTILINGUAL</div><h3>Indian Languages</h3><p>The challenges of recognition across India's linguistic diversity.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+  </section>
+
+  <section class="article-section" id="multimodal">
+    <div class="question-number">08</div>
+    <h2>What if audio is not the only source of context?</h2>
+    <p>In multimodal ASR, visual and contextual information can complement the acoustic signal.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="audio-visual-asr.html"><div class="card-kicker">MULTIMODAL</div><h3>Audio-Visual ASR</h3><p>Combining speech with visual information.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="visual-context.html"><div class="card-kicker">MULTIMODAL</div><h3>Visual Context</h3><p>Using surrounding visual information to support recognition.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card featured" href="slam-asr.html"><div class="card-kicker">MULTIMODAL / RESEARCH</div><h3>SLAM-ASR</h3><p>Connecting speech recognition with broader audio-visual and language context.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="lecture-document-context.html"><div class="card-kicker">MULTIMODAL</div><h3>Lecture / Document Context</h3><p>Slides, equations, visual frames, and document information as context.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+
+    <p class="question-callout">Speech can be understood in a richer context than the waveform alone — especially when the surrounding visual world carries information about what is being said.</p>
+  </section>
+
+  <section class="article-section" id="data">
+    <div class="question-number">09</div>
+    <h2>What makes an ASR model possible in the first place?</h2>
+    <p>Behind every recognition model is a data pipeline: speech, transcripts, alignment, augmentation, filtering, and curation.</p>
+
+    <div class="distinction-list">
+      <div><strong>SPEECH CORPORA</strong><span>Collections of speech and corresponding supervision.</span></div>
+      <div><strong>TRANSCRIPTION</strong><span>Text supervision and the challenge of producing reliable transcripts.</span></div>
+      <div><strong>ALIGNMENT</strong><span>Connecting speech segments with linguistic or multimodal information.</span></div>
+      <div><strong>DATA AUGMENTATION</strong><span>Expanding training diversity through controlled transformations.</span></div>
+      <div><strong>DATASET CURATION</strong><span>Cleaning, filtering, balancing, and structuring speech data.</span></div>
+    </div>
+  </section>
+
+  <section class="article-section" id="evaluation">
+    <div class="question-number">10</div>
+    <h2>How do we know whether the recognizer actually works?</h2>
+    <p>Recognition quality and system efficiency require different measurements.</p>
+
+    <div class="concept-grid">
+      <a class="concept-card" href="wer.html"><div class="card-kicker">QUALITY</div><h3>WER</h3><p>Word Error Rate for measuring transcription errors.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="cer.html"><div class="card-kicker">QUALITY</div><h3>CER</h3><p>Character Error Rate for character-level evaluation.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="ser.html"><div class="card-kicker">QUALITY</div><h3>SER</h3><p>Sentence Error Rate for complete-utterance correctness.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="rtf.html"><div class="card-kicker">EFFICIENCY</div><h3>RTF</h3><p>Real-Time Factor for computational efficiency.</p><span class="arrow">EXPLORE →</span></a>
+      <a class="concept-card" href="latency.html"><div class="card-kicker">SYSTEMS</div><h3>Latency</h3><p>How quickly useful recognition output becomes available.</p><span class="arrow">EXPLORE →</span></a>
+    </div>
+
+    <p class="question-callout">The journey does not end with a transcript. A useful ASR system must also be measurable, efficient, and appropriate for the setting in which it operates.</p>
+  </section>
+
+  <section class="journey-section">
+    <h2>The ASR journey</h2>
+    <div class="distinction-list">
+      <div><strong>FOUNDATIONS</strong><span>Define the recognition problem.</span></div>
+      <div><strong>ARCHITECTURES</strong><span>Choose how sequences are modeled.</span></div>
+      <div><strong>REPRESENTATIONS</strong><span>Decide what information the model sees.</span></div>
+      <div><strong>TRAINING</strong><span>Define how the model learns.</span></div>
+      <div><strong>DECODING</strong><span>Turn scores into hypotheses.</span></div>
+      <div><strong>SYSTEMS</strong><span>Make recognition efficient and real-time.</span></div>
+      <div><strong>MULTILINGUAL / MULTIMODAL</strong><span>Extend the context of recognition.</span></div>
+      <div><strong>EVALUATION</strong><span>Measure what the system actually achieves.</span></div>
+    </div>
+  </section>
+
+  <nav class="article-footer-nav">
+    <a href="discover.html">← DISCOVER SPEECH</a>
+  </nav>
+
+</main>
+
+<script src="asr.js"></script>
+</body>
+</html>

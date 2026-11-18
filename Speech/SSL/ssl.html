@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Self-Supervised Learning — VoctraMind</title><link rel="stylesheet" href="ssl.css"><script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script><script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script></head><body>
+
+
+ <aside class="lora-map">
+
+  <div class="map-kicker">MODEL MACHINERY</div>
+
+  <div class="map-title">
+    Self-Supervised Learning
+  </div>
+
+  <nav class="timeline">
+
+    <a class="map-item" href="#intro">
+      <span class="map-number">01</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>What is SSL?</strong>
+        <em>Learning without human labels</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#representations">
+      <span class="map-number">02</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>Why representations?</strong>
+        <em>From symbols to vectors</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#onehot">
+      <span class="map-number">03</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>One-hot encoding</strong>
+        <em>Identity without geometry</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#word2vec">
+      <span class="map-number">04</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>Word2Vec</strong>
+        <em>Learning from context</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#cbow">
+      <span class="map-number">05</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>CBOW</strong>
+        <em>Context → target</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#skipgram">
+      <span class="map-number">06</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>Skip-gram</strong>
+        <em>Target → context</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#compare">
+      <span class="map-number">07</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>Two directions</strong>
+        <em>CBOW vs Skip-gram</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#static">
+      <span class="map-number">08</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>Static at inference</strong>
+        <em>Word2Vec limitation</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#elmo">
+      <span class="map-number">09</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>ELMo</strong>
+        <em>Context enters the representation</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#bert">
+      <span class="map-number">10</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>BERT</strong>
+        <em>Context through self-attention</em>
+      </span>
+    </a>
+
+    <a class="map-item" href="#elmo-bert">
+      <span class="map-number">11</span>
+      <i class="map-dot"></i>
+      <span class="map-copy">
+        <strong>ELMo vs BERT</strong>
+        <em>Two routes to contextual representations</em>
+      </span>
+    </a>
+
+  </nav>
+
+</aside>
+
+
+
+<main class="article-page"><nav class="article-nav"><a href="mechanics.html">← MODEL MECHANICS</a></nav>
+<header class="article-header"><div class="section-label">MODEL MACHINERY / SELF-SUPERVISED LEARNING</div><h1>How can a model<br><span>learn without labels?</span></h1><p class="article-intro">From symbolic words to learned representations — the first steps toward self-supervised learning.</p></header>
+
+<section class="article-section" id="intro"><div class="section-number">01</div><h2>What is self-supervised learning?</h2><p>Self-supervised learning creates a learning signal from the data itself. Instead of providing a human-written label for every example, the training procedure constructs a prediction target from information already present in the input.</p><div class="ssl-box"><div><small>SUPERVISED</small><strong>Input</strong><span>↓</span><b>human label</b><span>↓</span><strong>learn</strong></div><div><small>SELF-SUPERVISED</small><strong>Input data</strong><span>↓</span><b>construct a target</b><span>↓</span><strong>learn</strong></div></div><p class="caption">The defining idea is the construction of the learning target — not a particular neural-network architecture.</p><div class="question-box"><label>QUESTION</label><h3>What can the data teach us about itself?</h3><p>The answer depends on the task we construct.</p></div></section>
+
+<section class="article-section" id="representations"><div class="section-number">02</div><h2>Before learning — we need a representation.</h2><p>A machine-learning model operates on numerical quantities. But a word such as <strong>cat</strong> is a discrete symbol. We therefore need a numerical representation before a model can process it.</p><div class="simple-statement">cat &nbsp;&nbsp; → &nbsp;&nbsp; numerical representation</div><p>The simplest approach is to give every word its own identity. This leads to <strong>one-hot encoding</strong>.</p></section>
+
+<section class="article-section" id="onehot"><div class="section-number">03</div><h2>One-hot encoding gives a word an identity.</h2><p>For a vocabulary of size V, each word is represented by a V-dimensional binary vector with a single 1 and zeros elsewhere.</p><div class="onehot"><div class="word">cat</div><div class="arrow">→</div><div class="vector">[ 0 &nbsp; 0 &nbsp; <strong>1</strong> &nbsp; 0 &nbsp; 0 &nbsp; 0 ]</div></div><div class="question-box"><label>LIMITATION</label><h3>Identity is not similarity.</h3><p>One-hot vectors tell us which word we have, but they do not learn that <em>cat</em> and <em>dog</em> may occur in similar contexts.</p></div></section>
+
+<section class="article-section" id="word2vec"><div class="section-number">04</div><h2>Word2Vec learns representations from context.</h2><p>Word2Vec changes the objective. Rather than assigning a useful representation to a word in isolation, it learns word vectors while solving a <strong>context-prediction task</strong>.</p><div class="sentence"><span>The</span><span>cat</span><span class="focus">sat</span><span>on</span><span>the</span><span>mat</span></div><p>Words that occur in related contexts receive pressure to develop related representations. Word2Vec uses two closely related formulations: <strong>CBOW</strong> and <strong>Skip-gram</strong>.</p><div class="question-box"><label>KEY IDEA</label><h3>Context is used to learn the representation.</h3><p>But how is that context used? CBOW and Skip-gram answer this in opposite directions.</p></div></section>
+
+<section class="article-section" id="cbow"><div class="section-number">05</div><h2>CBOW — context predicts the target.</h2><p>Continuous Bag of Words uses surrounding words to predict the center word.</p><div class="architecture"><div class="tokens"><span>the</span><span>cat</span><span>on</span><span>the</span></div><div class="arrow">→</div><div class="matrix"><small>SAME</small><b>Embedding<br>Matrix</b></div><div class="arrow">→</div><div class="average">combine<br><strong>context vectors</strong></div><div class="arrow">→</div><div class="target">predict<br><strong>sat</strong></div></div><p>The context-word embeddings are combined, typically by averaging. Importantly, the same embedding matrix is used for every context position. There is no separate network for the first, second, third, or fourth position.</p><div class="note">Classic CBOW is <strong>order-independent</strong>: the context is treated as a bag of words, so the model does not explicitly encode which context word came first.</div></section>
+
+<section class="article-section" id="skipgram"><div class="section-number">06</div><h2>Skip-gram — the target predicts its context.</h2><p>Skip-gram reverses the prediction direction. Given a center word, it predicts the words that occur around it within the chosen context window.</p><div class="architecture"><div class="target center">sat</div><div class="arrow">→</div><div class="matrix"><small>SAME</small><b>Embedding<br>Matrix</b></div><div class="arrow">→</div><div class="tokens row"><span>the</span><span>cat</span><span>on</span><span>the</span></div></div><p>The same learned parameters are reused across the context examples. Classic Skip-gram also has no explicit positional encoding for the context window.</p></section>
+
+<section class="article-section" id="compare">
+  <div class="section-number">07</div>
+
+  <h2>Same framework. Two prediction directions.</h2>
+
+  <div class="compare">
+
+    <div>
+      <small>CBOW</small>
+      <h3>Context → Target</h3>
+      <p>
+        Use surrounding words to predict the center word.
+      </p>
+    </div>
+
+    <div>
+      <small>SKIP-GRAM</small>
+      <h3>Target → Context</h3>
+      <p>
+        Use the center word to predict surrounding words.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="shared-note">
+    <strong>What they share</strong>
+    <p>
+      Both use the same underlying Word2Vec framework and
+      shared embedding parameters. Classic Word2Vec does not
+      assign a separate network to each context position and
+      does not explicitly encode word position.
+    </p>
+  </div>
+
+  <div class="comparison-table">
+    <div class="table-row table-head">
+      <div></div>
+      <div>CBOW</div>
+      <div>Skip-gram</div>
+    </div>
+
+    <div class="table-row">
+      <div>Input</div>
+      <div>Context words</div>
+      <div>Center word</div>
+    </div>
+
+    <div class="table-row">
+      <div>Prediction</div>
+      <div>Center word</div>
+      <div>Context words</div>
+    </div>
+
+    <div class="table-row">
+      <div>Shared parameters</div>
+      <div>Yes</div>
+      <div>Yes</div>
+    </div>
+
+    <div class="table-row">
+      <div>Explicit word position</div>
+      <div>No</div>
+      <div>No</div>
+    </div>
+  </div>
+
+</section>
+<section class="article-section" id="static"><div class="section-number">08</div><h2>Learned from context — but static at inference.</h2><p>This distinction is important. Word2Vec <strong>uses context during training</strong> to learn its word vectors. But after training, looking up a word returns the same learned vector regardless of the sentence in which the word appears.</p><div class="static"><div>river <strong>bank</strong> → <em>same bank vector</em></div><div>money <strong>bank</strong> → <em>same bank vector</em></div></div><p>So Word2Vec is not “context-free” during learning. Rather, its learned word representation is <strong>context-independent at inference time</strong>. The classic models also do not explicitly represent word order.</p><div class="question-box"><label>THE NEXT QUESTION</label><h3>What if the representation itself changed with context?</h3><p>This leads naturally to contextual representations such as ELMo.</p></div></section>
+
+
+<section class="article-section" id="elmo">
+  <div class="section-number">09</div>
+  <h2>ELMo — the representation changes with context.</h2>
+  <p>ELMo, or <strong>Embeddings from Language Models</strong>, takes the next step. Instead of looking up one fixed vector for a word, it derives the representation from a pretrained <strong>bidirectional language model built with LSTMs</strong>.</p>
+
+  <div class="elmo-example">
+    <div class="elmo-sentence"><span>I</span><span>deposited</span><span>money</span><span>in</span><span>the</span><b>bank</b></div>
+    <div class="elmo-sentence"><span>We</span><span>sat</span><span>beside</span><span>the</span><span>river</span><b>bank</b></div>
+    <div class="elmo-result"><strong>bank</strong><span>→ different contextual representations</span></div>
+  </div>
+
+  <p>ELMo uses <strong>two LSTM language-model directions</strong>: one reads the sequence from left to right, while the other reads it from right to left. Their hidden representations provide complementary context for the same word.</p>
+
+  <div class="elmo-directions">
+    <div class="direction-card">
+      <small>FORWARD LSTM LANGUAGE MODEL</small>
+      <div class="direction-line">I → deposited → money → in → the → <strong>bank</strong></div>
+      <p>Builds its representation from the words to the <strong>left</strong> of the target.</p>
+    </div>
+    <div class="direction-card">
+      <small>BACKWARD LSTM LANGUAGE MODEL</small>
+      <div class="direction-line">I ← deposited ← money ← in ← the ← <strong>bank</strong></div>
+      <p>Builds its representation from the words to the <strong>right</strong> of the target.</p>
+    </div>
+  </div>
+
+  <div class="elmo-combine">
+    <div class="elmo-stack">
+      <span>Forward LSTM representation</span>
+      <span>Backward LSTM representation</span>
+    </div>
+    <div class="elmo-plus">+</div>
+    <div class="elmo-layer">Learned scalar mixing<br><small>across ELMo layers</small></div>
+    <div class="elmo-arrow">→</div>
+    <div class="elmo-output"><strong>Contextual representation</strong><small>for this occurrence of the word</small></div>
+  </div>
+
+  <p>ELMo therefore does not assign a new permanent vocabulary vector to every context. Instead, the pretrained LSTM language model produces hidden representations that depend on the sentence, and a learned weighted combination of its layers gives the representation used downstream.</p>
+
+  <div class="note"><strong>Key change:</strong> context is no longer used only to learn a vocabulary-level vector. The representation produced for a word can now depend on the sentence in which it occurs.</div>
+</section>
+
+<section class="article-section" id="bert">
+  <div class="section-number">10</div>
+  <h2>BERT — context through self-attention.</h2>
+
+  <p>BERT uses a <strong>Transformer encoder</strong>. Instead of running separate forward and backward language models, self-attention allows each token to interact with information from the sequence, so the representation at a position can incorporate context from both sides.</p>
+
+  <div class="bert-figure">
+  <img src="BERT.png" alt="BERT masked language model training">
+</div>
+
+  <p>During <strong>Masked Language Modeling</strong>, some input tokens are hidden and the model learns to predict the original tokens. The important point is that the Transformer still produces a contextual representation at <strong>every position</strong>; the representation at the masked position is simply the one used for the reconstruction objective.</p>
+
+<div class="bert-figure">
+  <img src="BERT_inf.png" alt="BERT masked language model training">
+</div>
+
+
+</section>
+<section class="article-section" id="elmo-bert">
+  <div class="section-number">11</div>
+  <h2>ELMo and BERT — same goal, different mechanism.</h2>
+  <p>Both produce <strong>context-dependent representations</strong>, but they reach that goal through different architectures and pretraining objectives.</p>
+
+  <div class="compare contextual-compare">
+    <div>
+      <small>ELMo</small>
+      <h3>Two directional language models</h3>
+      <p>Separate forward and backward <strong>LSTM</strong> language models provide contextual hidden representations, which are combined through learned layer mixing.</p>
+    </div>
+    <div>
+      <small>BERT</small>
+      <h3>One Transformer encoder</h3>
+      <p>A Transformer encoder uses self-attention (inherently bi-directional) across the sequence, with masked-token prediction providing the main pretraining objective.</p>
+    </div>
+  </div>
+
+  <div class="evolution contextual-evolution">
+    <span>Word2Vec</span> → <strong>static at inference</strong><br>
+    <span>ELMo</span> → <strong>context-dependent</strong><br>
+    <span>BERT</span> → <strong>context-dependent through self-attention</strong>
+  </div>
+
+  <div class="question-box"><label>NEXT</label><h3>What happens when we move from text to speech?</h3><p>The same self-supervised idea reappears in speech, but now the raw signal is continuous and highly redundant</p></div>
+</section>
+
+<nav class="article-footer-nav"><a href="../../discover.html">← DISCOVER SPEECH</a></nav></main><script src="ssl.js"></script></body></html>

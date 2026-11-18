@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear Algebra — VoctraMind</title>
+  <link rel="stylesheet" href="linear-algebra.css">
+</head>
+<body>
+  <main class="la-page">
+    <nav class="la-nav">
+      <a href="index.html">← VOCTRAMIND</a>
+    </nav>
+
+    <header class="la-header">
+      <div class="la-kicker">MATHEMATICAL FOUNDATIONS</div>
+      <h1>Linear Algebra</h1>
+      <p>A step-by-step path from mathematical foundations to advanced concepts.</p>
+    </header>
+
+    <section class="la-path-section" aria-label="Linear Algebra learning path">
+      <div class="la-path-intro">
+        <span class="la-path-label">THE LEARNING PATH</span>
+        <span class="la-path-hint">Select any step to explore it</span>
+      </div>
+      <div class="la-path" id="linearAlgebraPath">
+        <div class="la-empty-state">
+          Your learning ladder will appear here once the topics are added.
+        </div>
+      </div>
+    </section>
+
+    <section class="la-topic-panel" id="laTopicPanel" aria-live="polite">
+      <div class="la-topic-kicker" id="laTopicKicker">LINEAR ALGEBRA</div>
+      <h2 id="laTopicTitle">A structured mathematical journey</h2>
+      <p id="laTopicDescription">Each rung will open its own topic. The sequence and chapter links will be populated from your topic list.</p>
+      <a class="la-open-topic" id="laTopicLink" href="#" hidden>OPEN CHAPTER <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+
+  <script src="linear-algebra.js"></script>
+</body>
+</html>

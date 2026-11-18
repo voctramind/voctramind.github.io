@@ -1,0 +1,507 @@
+/* =========================================================
+   SPEECH SELF-SUPERVISED LEARNING — ARTICLE
+   VoctraMind
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background: #f7f7f3;
+  color: #1d1d1b;
+
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.article-page {
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding: 32px 6vw 100px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.article-nav {
+  margin-bottom: 100px;
+}
+
+.article-nav a,
+.article-footer-nav a {
+  color: #1d1d1b;
+
+  text-decoration: none;
+
+  font-size: 0.76rem;
+
+  letter-spacing: 0.12em;
+
+  transition: opacity 0.25s ease;
+}
+
+.article-nav a:hover,
+.article-footer-nav a:hover {
+  opacity: 0.5;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.article-header {
+  max-width: 900px;
+
+  margin-bottom: 90px;
+}
+
+.section-label {
+  margin-bottom: 22px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.2em;
+
+  opacity: 0.45;
+}
+
+.article-header h1 {
+  margin: 0;
+
+  font-size: clamp(3.2rem, 7vw, 7rem);
+
+  line-height: 0.94;
+
+  font-weight: 400;
+
+  letter-spacing: -0.06em;
+}
+
+.article-header h1 span {
+  opacity: 0.42;
+}
+
+.article-intro {
+  max-width: 680px;
+
+  margin-top: 35px;
+
+  font-size: 1.05rem;
+
+  line-height: 1.75;
+
+  opacity: 0.62;
+}
+
+
+/* =========================================================
+   ARTICLE SECTIONS
+   ========================================================= */
+
+.article-section {
+  max-width: 760px;
+
+  margin: 0 auto 110px;
+}
+
+.article-section h2 {
+  margin: 0 0 30px;
+
+  font-size: clamp(2rem, 4vw, 3.5rem);
+
+  line-height: 1.05;
+
+  font-weight: 400;
+
+  letter-spacing: -0.045em;
+}
+
+.article-section h3 {
+  font-weight: 400;
+}
+
+.article-section p {
+  max-width: 700px;
+
+  margin: 0 0 25px;
+
+  font-size: 1.03rem;
+
+  line-height: 1.85;
+
+  opacity: 0.78;
+}
+
+.article-section strong {
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   QUESTION NUMBERS
+   ========================================================= */
+
+.question-number {
+  margin-bottom: 20px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.2em;
+
+  opacity: 0.4;
+}
+
+
+/* =========================================================
+   QUESTION CALLOUT
+   ========================================================= */
+
+.question-callout {
+  margin-top: 45px !important;
+
+  padding-left: 24px;
+
+  border-left: 2px solid rgba(109, 101, 255, 0.35);
+
+  font-size: 1.08rem !important;
+
+  line-height: 1.7 !important;
+
+  opacity: 0.9 !important;
+}
+
+
+/* =========================================================
+   EQUATIONS
+   ========================================================= */
+
+.equation {
+  width: 100%;
+
+  margin: 45px 0;
+
+  padding: 20px 10px;
+
+  text-align: center;
+
+  overflow-x: auto;
+
+  font-size: 1.12rem;
+}
+
+/*
+   MathJax display equations inherit their visual scale
+   from this container.
+*/
+
+.equation mjx-container[display="true"] {
+  margin: 0 !important;
+}
+
+
+/* =========================================================
+   FIGURES
+   ========================================================= */
+
+.article-figure {
+  width: 100%;
+
+  margin: 80px auto 110px;
+}
+
+.figure-placeholder {
+  min-height: 360px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px dashed rgba(29, 29, 27, 0.18);
+
+  text-align: center;
+
+  opacity: 0.45;
+}
+
+.figure-placeholder.large {
+  min-height: 540px;
+}
+
+.figure-placeholder > span {
+  font-size: 0.65rem;
+
+  letter-spacing: 0.2em;
+}
+
+.figure-placeholder > p {
+  max-width: 520px;
+
+  margin-top: 12px;
+
+  font-size: 0.85rem;
+
+  line-height: 1.6;
+
+  opacity: 0.7;
+}
+
+
+/* =========================================================
+   LAB SECTIONS
+   ========================================================= */
+
+.lab-section {
+  position: relative;
+
+  padding: 55px 45px;
+
+  border-top: 1px solid rgba(109, 101, 255, 0.20);
+
+  border-bottom: 1px solid rgba(109, 101, 255, 0.20);
+
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lab-section .question-number {
+  color: #6d65ff;
+
+  opacity: 0.7;
+}
+
+.lab-note {
+  margin-top: 35px !important;
+
+  font-size: 0.82rem !important;
+
+  letter-spacing: 0.02em;
+
+  opacity: 0.5 !important;
+}
+
+
+/* =========================================================
+   METHOD GRID
+   ========================================================= */
+
+.method-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 25px;
+
+  margin: 50px 0;
+}
+
+.method-card {
+  padding: 35px;
+
+  border: 1px solid rgba(29, 29, 27, 0.14);
+
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.method-label {
+  margin-bottom: 20px;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.18em;
+
+  opacity: 0.45;
+}
+
+.method-card h3 {
+  margin: 0 0 18px;
+
+  font-size: 1.5rem;
+
+  letter-spacing: -0.025em;
+}
+
+.method-card p {
+  font-size: 0.92rem;
+}
+
+
+/* =========================================================
+   COMPARISON TABLE
+   ========================================================= */
+
+.comparison-table {
+  width: 100%;
+
+  margin: 55px 0;
+
+  border-top: 1px solid rgba(29, 29, 27, 0.16);
+}
+
+.comparison-row {
+  display: grid;
+
+  grid-template-columns: 0.8fr 1.8fr;
+
+  gap: 30px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid rgba(29, 29, 27, 0.12);
+
+  font-size: 0.92rem;
+
+  line-height: 1.5;
+}
+
+.comparison-header {
+  font-size: 0.65rem;
+
+  letter-spacing: 0.16em;
+
+  opacity: 0.45;
+}
+
+
+/* =========================================================
+   FINAL MAP
+   ========================================================= */
+
+.map-equation {
+  text-align: left;
+
+  padding: 35px 20px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.article-footer-nav {
+  max-width: 760px;
+
+  margin: 150px auto 0;
+
+  padding-top: 30px;
+
+  border-top: 1px solid rgba(29, 29, 27, 0.14);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .article-page {
+    padding: 25px 6vw 70px;
+  }
+
+  .article-nav {
+    margin-bottom: 70px;
+  }
+
+  .article-header {
+    margin-bottom: 70px;
+  }
+
+  .article-header h1 {
+    font-size: clamp(3rem, 14vw, 5rem);
+  }
+
+  .article-section {
+    margin-bottom: 80px;
+  }
+
+  .article-section h2 {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .article-section p {
+    font-size: 1rem;
+
+    line-height: 1.8;
+  }
+
+  .equation {
+    margin: 35px 0;
+
+    padding: 15px 0;
+
+    font-size: 0.95rem;
+  }
+
+  .method-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .method-card {
+    padding: 28px;
+  }
+
+  .lab-section {
+    padding: 35px 25px;
+  }
+
+  .comparison-row {
+    grid-template-columns: 1fr;
+
+    gap: 5px;
+  }
+
+  .comparison-header {
+    display: none;
+  }
+
+  .figure-placeholder.large {
+    min-height: 360px;
+  }
+
+  .map-equation {
+    padding: 20px 5px;
+
+    font-size: 0.9rem;
+
+    line-height: 1.7;
+  }
+
+  .article-footer-nav {
+    margin-top: 100px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+}

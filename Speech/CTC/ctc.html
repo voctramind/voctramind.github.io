@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A visual guide to Connectionist Temporal Classification (CTC), alignment paths, the blank token, and CTC loss.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Connectionist Temporal Classification — VoctraMind</title>
+  <link rel="stylesheet" href="ctc.css">
+  <script>MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <aside class="lora-map" aria-label="CTC progression map">
+    <div class="map-kicker">MODEL MACHINERY</div>
+    <div class="map-title">Connectionist Temporal Classification</div>
+    <nav class="timeline" id="sectionNav">
+      <a class="map-item" href="#problem" data-target="problem"><span class="map-number">01</span><i class="map-dot"></i><span class="map-copy"><strong>The alignment problem</strong><em>Speech frames, unknown boundaries</em></span></a>
+      <a class="map-item" href="#collapse" data-target="collapse"><span class="map-number">02</span><i class="map-dot"></i><span class="map-copy"><strong>The collapse operation</strong><em>Repeats first, blanks second</em></span></a>
+      <a class="map-item" href="#example" data-target="example"><span class="map-number">03</span><i class="map-dot"></i><span class="map-copy"><strong>Try a path</strong><em>Interactive CTC example</em></span></a>
+      <a class="map-item" href="#probability" data-target="probability"><span class="map-number">04</span><i class="map-dot"></i><span class="map-copy"><strong>Transcript probability</strong><em>Sum over valid paths</em></span></a>
+      <a class="map-item" href="#trellis" data-target="trellis"><span class="map-number">05</span><i class="map-dot"></i><span class="map-copy"><strong>Expanded target</strong><em>States and transitions</em></span></a>
+      <a class="map-item" href="#loss" data-target="loss"><span class="map-number">06</span><i class="map-dot"></i><span class="map-copy"><strong>CTC loss</strong><em>Train without frame labels</em></span></a>
+      <a class="map-item" href="#forward" data-target="forward"><span class="map-number">07</span><i class="map-dot"></i><span class="map-copy"><strong>Forward recurrence</strong><em>Efficient path summation</em></span></a>
+      <a class="map-item" href="#gradient" data-target="gradient"><span class="map-number">08</span><i class="map-dot"></i><span class="map-copy"><strong>Gradient intuition</strong><em>Posterior occupancy</em></span></a>
+      <a class="map-item" href="#decoding" data-target="decoding"><span class="map-number">09</span><i class="map-dot"></i><span class="map-copy"><strong>Decoding</strong><em>Greedy vs beam search</em></span></a>
+      <a class="map-item" href="#limits" data-target="limits"><span class="map-number">10</span><i class="map-dot"></i><span class="map-copy"><strong>Assumptions and limits</strong><em>What CTC can and cannot do</em></span></a>
+    </nav>
+  </aside>
+
+  <main class="article-page">
+    <nav class="article-nav"><a href="../../mechanics.html">← MODEL MACHINERY</a></nav>
+    <header class="article-header">
+      <div class="section-label">SEQUENCE MODELLING · ASR</div>
+      <h1>Connectionist Temporal <span>Classification</span></h1>
+      <p class="article-intro"><p>Introduced by Graves et al. in 2006, Connectionist Temporal Classification (CTC) enabled end-to-end training of encoder-only ASR systems without requiring explicit frame-level alignment between speech and transcription. It achieves this by marginalizing over all valid alignments between acoustic frames and output tokens. Although CTC provides a natural training objective for encoder-only recognition, it is also widely used in hybrid CTC–attention architectures, where the CTC objective complements attention-based sequence modeling to improve alignment learning and recognition performance.</p>
+    </header>
+
+    <section class="article-section" id="problem">
+      <div class="question-number">01 / THE PROBLEM</div>
+      <h2>Speech frames do not come with character boundaries.</h2>
+      <p>An acoustic encoder converts an input utterance into a sequence of frame-level representations. For an input with \(T\) time steps, the model predicts a distribution over output symbols at each step.</p>
+      <div class="equation">\[ X \longrightarrow (\mathbf{h}_1,\ldots,\mathbf{h}_T) \longrightarrow P(\pi_t\mid X) \]</div>
+      <p>The transcript might be <strong>SPEECH</strong>, but the training label usually does not tell us which frames correspond to S, P, E, E, C, or H.</p>
+    </section>
+
+<section class="article-section" id="collapse">
+  <div class="question-number">02 / FROM ALIGNMENTS TO TRANSCRIPT</div>
+
+  <h2>Many paths. One word. A clever blank.</h2>
+
+<p>
+  Suppose the transcript is <strong>SPEECH</strong>, observed over eight
+  acoustic frames. The encoder produces a probability distribution over
+  possible labels at each frame. CTC maximises the combined probability
+  of all valid alignments.
+</p>
+
+<p class="question-callout">What is a valid CTC alignment?</p>
+
+<p>
+  An alignment is a path that assigns one label to each time step.
+  Different paths can represent the same transcript by distributing
+  its characters differently across the frames. For example, all
+  three paths below collapse to <strong>SPEECH</strong>:
+</p>
+
+<p>
+  An alignment assigns a character or subword token (such as a BPE token)
+  to each acoustic frame. Multiple consecutive frames can be assigned the
+  same token, allowing a character to span several frames. Different
+  alignments can therefore represent the same transcript while distributing
+  its tokens differently across time.
+</p>
+
+ <div class="ctc-plain-card">
+    <div class="equation">
+      \[
+      \begin{array}{c|cccccccc}
+      \text{Time} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\
+      \hline
+      \text{Path 1} & S & P & E & E & C & H & H & H\\
+      \text{Path 2} & S & S & P & E & E & C & H & H\\
+      \text{Path 3} & S & P & P & E & C & C & H & H
+      \end{array}
+      \]
+    </div>
+    <p>
+      These paths differ in how characters are distributed across time.
+    </p>
+  </div>
+<p class="question-callout">
+  Are the above alignments valid?
+</p>
+
+
+<p>
+  A valid alignment is one that collapses to the target transcript.
+  CTC uses a collapse function that first merges consecutive repeated
+  labels and then removes blank symbols.
+</p>
+
+<div class="equation">
+  \[
+  S,\ S, \ P, \ P,\ E,\ E,\ C,\ H
+  \quad\xrightarrow{\text{Collapse}}\quad
+  \text{SPECH}
+  \]
+</div>
+
+<p>
+  The two consecutive E's merge into one, changing the intended
+  transcript <strong>SPEECH</strong> into <strong>SPECH</strong>.
+  How can CTC preserve both characters?
+</p>
+
+<p class="question-callout">
+  How can CTC's collapse function preserve both E's in SPEECH?
+</p>
+
+
+<p>
+  CTC introduces a special <strong>blank symbol</strong>,
+  denoted by \(\varnothing\). By placing a blank between repeated
+  characters, the two occurrences are no longer consecutive and
+  therefore do not merge during collapse.
+</p>
+
+<div class="equation">
+  \[
+  S, \ P,\ E,\ \varnothing,\ E,\ C,\ H
+  \]
+  \[
+  \Downarrow\quad \text{Merge consecutive repeats}
+  \]
+  \[
+  S,\ P,\ E,\ \varnothing,\ E,\ C,\ H
+  \]
+  \[
+  \Downarrow\quad \text{Remove blanks}
+  \]
+  \[
+  \boxed{\text{SPEECH}}
+  \]
+</div>
+
+<p>
+  The blank makes it possible to represent repeated characters while
+  preserving CTC's collapse rule: merge consecutive repeats first,
+  then remove blanks.
+</p>
+<section>
+<section class="article-section" id="example">
+<div class="ctc-trellis-demo">
+  <div class="ctc-trellis-header">
+    <div>
+      <h3>Inside the CTC trellis</h3>
+      <p>Explore different paths that produce the transcript SPEECH.</p>
+    </div>
+    <div class="ctc-trellis-target">
+      Target <strong>SPEECH</strong>
+    </div>
+  </div>
+
+  <div class="ctc-trellis-controls">
+    <button type="button" class="trellis-path-btn active" data-path="0">
+      Path 1
+    </button>
+    <button type="button" class="trellis-path-btn" data-path="1">
+      Path 2
+    </button>
+    <button type="button" class="trellis-path-btn" data-path="2">
+      Path 3
+    </button>
+    <button type="button" class="trellis-path-btn" data-path="all">
+      Show all
+    </button>
+  </div>
+
+  <div class="ctc-trellis-canvas-wrap">
+    <canvas id="ctcTrellisCanvas"></canvas>
+  </div>
+
+  <div class="ctc-trellis-caption" id="ctcTrellisCaption" aria-live="polite">
+    <strong>Path 1:</strong>
+    Labels can span multiple frames. This path collapses to SPEECH.
+  </div>
+
+  <div class="ctc-trellis-legend">
+    <span><i class="legend-dot legend-path-1"></i> Path 1</span>
+    <span><i class="legend-dot legend-path-2"></i> Path 2</span>
+    <span><i class="legend-dot legend-path-3"></i> Path 3</span>
+    <span><i class="legend-dot legend-state"></i> CTC state</span>
+  </div>
+</div>
+
+
+</section>
+
+    <section class="article-section" id="probability">
+      <div class="question-number">04 / TRANSCRIPT PROBABILITY</div>
+      <h2>One transcript can have many valid paths.</h2>
+      <p>Let \(\pi=(\pi_1,\ldots,\pi_T)\) be a path. Under the CTC conditional-independence assumption, its probability is the product of the frame-level probabilities.</p>
+      <div class="equation">\[ P(\pi\mid X)=\prod_{t=1}^{T}P(\pi_t\mid X) \]</div>
+      <p>Let \(\mathcal{B}\) be the collapse function. The probability of transcript \(Y\) is the sum of the probabilities of all paths that collapse to it:</p>
+      <div class="equation">\[ P(Y\mid X)=\sum_{\pi\in\mathcal{B}^{-1}(Y)}P(\pi\mid X) \]</div>
+      <p>Here, \(\mathcal{B}^{-1}(Y)\) denotes the set of paths that map to \(Y\). CTC does not need to decide on one alignment during training; it marginalises over all valid alignments.</p>
+    </section>
+
+    <section class="article-section" id="trellis">
+      <div class="question-number">05 / EXPANDED TARGET</div>
+      <h2>The target becomes a sequence of states.</h2>
+      <p>For the target <strong>SPEECH</strong>, CTC inserts blanks at the beginning, end, and between target symbols. This gives an expanded target of length \(2U+1\), where \(U\) is the target length.</p>
+      <div class="equation">\[ \varnothing, S, \varnothing, P, \varnothing, E, \varnothing, E, \varnothing, C, \varnothing, H, \varnothing \]</div>
+      <div class="ctc-state-strip" id="stateStrip" aria-label="Expanded target states"></div>
+      <p>At each time step, a valid alignment can remain in the same state, advance by one state, or sometimes skip a blank state. A two-state skip is forbidden when it would skip into a repeated label, which is why the two E labels require a blank state between them.</p>
+      <figure class="ctc-trellis-wrap">
+        <svg id="trellisSvg" viewBox="0 0 760 300" role="img" aria-label="Illustrative CTC trellis"></svg>
+        <figcaption class="ctc-figure-caption">Illustrative transitions only—not model probabilities or a learned alignment. The highlighted route is one possible path through the expanded target.</figcaption>
+      </figure>
+    </section>
+
+    <section class="article-section" id="loss">
+      <div class="question-number">06 / CTC LOSS</div>
+      <h2>Training maximises the probability of the transcript.</h2>
+      <p>For a training pair \((X,Y)\), CTC minimises the negative log probability of the reference transcript:</p>
+      <div class="equation">\[ \mathcal{L}_{\mathrm{CTC}}(X,Y)=-\log P(Y\mid X) \]</div>
+      <p>The sum over all valid paths is exponentially large if enumerated directly. Dynamic programming computes this sum efficiently using the expanded target and a forward recurrence.</p>
+      <p class="question-callout">CTC removes the need for frame-level labels; it does not remove the need for a correctly paired input utterance and target transcript.</p>
+    </section>
+
+    <section class="article-section" id="forward">
+      <div class="question-number">07 / FORWARD RECURRENCE</div>
+      <h2>Dynamic programming sums alignments.</h2>
+      <p>Let the expanded target be \(z_1,\ldots,z_S\). Define \(\alpha_t(s)\) as the total probability of paths that have reached state \(s\) at time \(t\), including the emission probability at that time.</p>
+      <div class="equation">\[ \alpha_t(s)=p_t(z_s)\left[\alpha_{t-1}(s)+\alpha_{t-1}(s-1)+\delta_s\alpha_{t-1}(s-2)\right] \]</div>
+      <p>The indicator \(\delta_s\) is 1 only when the two-state skip is legal: the destination is not blank and differs from the symbol two states earlier. Otherwise it is 0. Boundary states use the appropriate initialisation, and the final probability is obtained by summing the terminal blank and label states.</p>
+    </section>
+
+    <section class="article-section" id="gradient">
+      <div class="question-number">08 / GRADIENT INTUITION</div>
+      <h2>The gradient reflects posterior occupancy.</h2>
+      <p>At a high level, CTC compares the model's frame-level distribution with the posterior distribution over labels at each time step, conditioned on the full target transcript.</p>
+      <div class="equation">\[ \frac{\partial \mathcal{L}}{\partial a_t(k)}=p_t(k)-\gamma_t(k) \]</div>
+      <p>Here, \(a_t(k)\) is the pre-softmax logit for symbol \(k\), and \(\gamma_t(k)\) is the posterior probability that a valid alignment assigns symbol \(k\) at time \(t\). This expresses the intuition; the posterior is computed using the forward-backward algorithm and must account for the target sequence.</p>
+    </section>
+
+    <section class="article-section" id="decoding">
+      <div class="question-number">09 / DECODING</div>
+      <h2>Greedy decoding and beam search are not equivalent.</h2>
+      <div class="ctc-two-column">
+        <div class="ctc-plain-card"><h3>Greedy</h3><p>Choose the most likely symbol independently at each frame, then collapse the resulting path. It is fast, but it does not necessarily produce the most probable transcript.</p></div>
+        <div class="ctc-plain-card"><h3>Beam search</h3><p>Maintain multiple partial hypotheses and combine probability mass for paths that correspond to the same transcript. It can find a better transcript at a higher computational cost.</p></div>
+      </div>
+      <p>Language-model scores can also be incorporated during decoding. They may improve linguistic plausibility, but the balance between acoustic and language-model evidence must be tuned.</p>
+    </section>
+
+    <section class="article-section" id="limits">
+      <div class="question-number">10 / ASSUMPTIONS AND LIMITS</div>
+      <h2>CTC is powerful because it makes a simplifying assumption.</h2>
+      <p>CTC factorises the path probability across time steps conditioned on the acoustic input. The output labels are therefore conditionally independent given the encoder representations. The collapse function then imposes a monotonic mapping from input frames to target symbols.</p>
+      <p>This works well for many speech recognition systems, especially with a strong encoder. However, CTC does not explicitly model dependencies between output labels in the way an autoregressive decoder does, and its monotonic alignment assumption limits the kinds of alignments it can represent.</p>
+      <p class="question-callout">Remember the three pieces: frame-level distributions, a collapse function, and marginalisation over all paths that map to the target.</p>
+    </section>
+
+    <nav class="article-footer-nav"><a href="#problem">↑ BACK TO THE BEGINNING</a></nav>
+  </main>
+  <script src="ctc.js"></script>
+</body>
+</html>
